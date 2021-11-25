@@ -2,9 +2,10 @@ package org.zav.model;
 
 import com.opencsv.bean.CsvBindByName;
 import lombok.Data;
+import org.zav.dao.Entity;
 
 @Data
-public class Question {
+public class Question implements Entity {
     @CsvBindByName(column = "ID")
     Integer id;
 

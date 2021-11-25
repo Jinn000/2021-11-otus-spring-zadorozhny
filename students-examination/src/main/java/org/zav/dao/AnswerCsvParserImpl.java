@@ -6,32 +6,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
-import org.zav.model.Question;
+import org.zav.model.Answer;
 
 import java.util.List;
 
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuestionCsvParserImpl implements BaseRepository<Question> {
+public class AnswerCsvParserImpl implements BaseRepository<Answer> {
     private Resource source;
 
     /**Получение всего набора данных*/
     @NonNull
     @Override
-    public List<Question> readAll() {
-        return readAllBase(source, Question.class);
+    public List<Answer> readAll() {
+        return readAllBase(source, Answer.class);
     }
 
     /**Получение обьекта по ID*/
     @Override
-    public Question readById(@NonNull Integer id) {
-        return readByIdBase(id, source, Question.class);
+    public Answer readById(@NonNull Integer id) {
+        return readByIdBase(id, source, Answer.class);
     }
 
     /*TODO: TBD*/
     @Override
-    public Integer writeEntity(Question question) {
+    public Integer writeEntity(Answer answer) {
         return null;
     }
 
@@ -40,4 +40,5 @@ public class QuestionCsvParserImpl implements BaseRepository<Question> {
     public boolean deleteById(Integer id) {
         return false;
     }
+
 }
