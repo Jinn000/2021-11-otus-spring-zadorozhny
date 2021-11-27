@@ -1,20 +1,15 @@
 package org.zav.dao;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.zav.model.Question;
 
 import java.util.List;
 
-@Getter @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class QuestionCsvParserImpl implements BaseRepository<Question> {
-    private Resource source;
+    private final Resource source;
 
     /**Получение всего набора данных*/
     @NonNull

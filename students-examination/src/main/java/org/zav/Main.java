@@ -1,3 +1,5 @@
+package org.zav;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.zav.service.DataLayoutService;
 import org.zav.service.ScreenLayoutServiceImpl;
@@ -9,6 +11,6 @@ public class Main {
 
         DataLayoutService dataLayoutService = context.getBean("screenLayoutServiceImpl", ScreenLayoutServiceImpl.class);
 
-        dataLayoutService.showQuestionsOnly();
+        dataLayoutService.showQuestionsWithAnswers();
     }
 }
