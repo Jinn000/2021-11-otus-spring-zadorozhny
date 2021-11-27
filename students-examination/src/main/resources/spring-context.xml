@@ -5,10 +5,10 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="questionCsvParserImpl" class="org.zav.dao.QuestionCsvParserImpl">
-        <property name="source" value="/questions.csv"/>
+        <constructor-arg name="source" value="/questions.csv"/>
     </bean>
     <bean id="answerCsvParserImpl" class="org.zav.dao.AnswerCsvParserImpl">
-        <property name="source" value="/answers.csv"/>
+        <constructor-arg name="source" value="/answers.csv"/>
     </bean>
     <bean id="screenLayoutServiceImpl" class="org.zav.service.ScreenLayoutServiceImpl">
         <constructor-arg name="questionRepository" ref="questionCsvParserImpl"/>

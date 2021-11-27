@@ -1,25 +1,22 @@
 package org.zav.dao;
 
 import com.opencsv.bean.CsvToBeanBuilder;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.zav.model.Question;
+import org.springframework.util.FileCopyUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public interface BaseRepository<T extends Entity> {
-    static Logger logger = Logger.getGlobal();
+    Logger logger = Logger.getGlobal();
 
-    static final String READING_QUESTIONS_FAILED = "Reading questions failed ";
+    String READING_QUESTIONS_FAILED = "Reading questions failed ";
 
 
     /**Получение всего набора данных*/
@@ -39,11 +36,20 @@ public interface BaseRepository<T extends Entity> {
     default List<T> readAllBase(Resource source, Class<T> type) {
         List<T> result = new ArrayList<>();
 
+        String data = "";
         try {
-            File csv = source.getFile();
-            Reader targetReader = new FileReader(csv);
+            InputStreamReader isR = new InputStreamReader(source.getInputStream());
+            byte[] bdata = FileCopyUtils.copyToByteArray(source.getInputStream());
+            data = new String(bdata, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.log(Level.WARNING, READING_QUESTIONS_FAILED);
+        }
 
+
+        try {
+            InputStreamReader targetReader = new InputStreamReader(source.getInputStream());
             result = new CsvToBeanBuilder<T>(targetReader)
+                    .withSeparator('*')
                     .withType(type)
                     .build()
                     .parse();

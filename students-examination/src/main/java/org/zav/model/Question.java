@@ -5,13 +5,21 @@ import lombok.Data;
 import org.zav.dao.Entity;
 
 @Data
-public class Question implements Entity {
+public class Question implements Entity, Comparable<Question> {
     @CsvBindByName(column = "ID")
-    Integer id;
+    private Integer id;
+
+    @CsvBindByName(column = "POSITION_NUMBER")
+    private Integer positionNumber;
 
     @CsvBindByName(column = "QUESTION_DESCRIPTION")
-    String questionDescription;
+    private String questionDescription;
 
     @CsvBindByName(column = "VALID_ANSWER_ID")
-    Integer validAnswerId;
+    private Integer validAnswerId;
+
+    @Override
+    public int compareTo(Question o) {
+        return this.getPositionNumber().compareTo(o.getPositionNumber());
+    }
 }
