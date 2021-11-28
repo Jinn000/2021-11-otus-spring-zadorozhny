@@ -1,15 +1,23 @@
 package org.zav;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.*;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.zav.service.DataLayoutService;
 import org.zav.service.ScreenLayoutServiceImpl;
 
+@PropertySource("classpath:application.properties")
+@ComponentScan
+@Configuration
 public class Main {
 
-    public static void main(String[] args ){
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfig(){
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
-        DataLayoutService dataLayoutService = context.getBean("screenLayoutServiceImpl", ScreenLayoutServiceImpl.class);
+    public static void main(String[] args ){
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Main.class);
+        DataLayoutService dataLayoutService = context.getBean(ScreenLayoutServiceImpl.class);
 
         dataLayoutService.showQuestionsWithAnswers();
     }

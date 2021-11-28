@@ -1,15 +1,22 @@
 package org.zav.dao;
 
-import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
 import org.zav.model.Question;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+//TODO: можно ли использовать ломбок RequiredConstructor , и както передавать в него Value?
+
+@Service
 public class QuestionCsvParserImpl implements BaseRepository<Question> {
     private final Resource source;
+
+    public QuestionCsvParserImpl(@Value("${sources.path.questions}") Resource source) {
+        this.source = source;
+    }
 
     /**Получение всего набора данных*/
     @NonNull

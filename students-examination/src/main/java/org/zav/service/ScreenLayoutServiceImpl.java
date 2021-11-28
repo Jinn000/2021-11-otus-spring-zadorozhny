@@ -1,6 +1,6 @@
 package org.zav.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
 import org.zav.model.Answer;
 import org.zav.model.Question;
@@ -8,10 +8,15 @@ import org.zav.model.Question;
 import java.util.List;
 
 /**Сервис для вывода данных на экран*/
-@RequiredArgsConstructor
+@Service
 public class ScreenLayoutServiceImpl implements DataLayoutService {
     private final BaseRepository<Question> questionRepository;
     private final BaseRepository<Answer> answerRepository;
+
+    public ScreenLayoutServiceImpl(BaseRepository<Question> questionRepository, BaseRepository<Answer> answerRepository) {
+        this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
+    }
 
     private static final String ANSWER_INDENT = "   ";
 
