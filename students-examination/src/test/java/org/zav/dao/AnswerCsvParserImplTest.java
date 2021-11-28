@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 //TODO: как лучше получать ресурсы в тестовых классах?
 //TODO: нормально ли создавать тут свой ClassPathXmlApplicationContext?
 //TODO: вижу дуюлирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?
+//TODO: почему при запуске lifecycle maven, не запускаются тесты (Tests run: 0, Failures: 0, Errors: 0, Skipped: 0)
 
 @DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
 public class AnswerCsvParserImplTest {
