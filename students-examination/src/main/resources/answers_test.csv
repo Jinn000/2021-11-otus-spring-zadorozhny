@@ -8,9 +8,9 @@ ID*ANSWER_DESCRIPTION*QUESTION_ID*POSITION_NUMBER
 6*Gradle*2*a
 7*Maven*2*b
 8*Manually*2*c
-9*Endless cycle*3*a
-10*Runtime error*3*b
-11*Compile-time error*3*c
-12*private*4*a
-13*public*4*b
-14*protected*4*c
+9*aaa*3*a
+10*sss*3*b
+11*ddd*3*c
+12*aa*4*a
+13*ss*4*b
+14*dd*4*c
