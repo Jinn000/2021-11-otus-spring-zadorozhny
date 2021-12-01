@@ -1,13 +1,13 @@
 package org.zav;
 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.zav.service.DataLayoutService;
 import org.zav.service.ScreenLayoutServiceImpl;
 
 @PropertySource("classpath:application.properties")
-@ComponentScan
-@Configuration
+@SpringBootApplication
 public class Main {
 
     @Bean
