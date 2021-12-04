@@ -15,13 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisplayName("Тестирование загрузки Question из CSV в ресурсах")
-@PropertySource("classpath:application.properties")
 @ContextConfiguration(classes = Main.class)
 public class QuestionCsvParserImplTest {
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("questions.csv");
+    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("questions_test.csv");
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test

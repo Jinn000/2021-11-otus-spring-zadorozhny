@@ -1,11 +1,15 @@
 package org.zav.dao;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.zav.Main;
 import org.zav.model.Answer;
 
@@ -21,14 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 //TODO: classpath у тестов смотрит в туда же куда и у main? Не удалось подсунуть тесту файл ресурсов (lass path resource [${sources.path.answers}] cannot be opened because it does not exist)
 
 @DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
-//@PropertySource("classpath:application.properties")
 @ContextConfiguration(classes = Main.class)
 public class AnswerCsvParserImplTest {
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("answers.csv");
-
+    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("answers_test.csv");
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test
