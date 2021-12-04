@@ -4,7 +4,9 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.zav.utils.exceptions.AppDaoException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public interface BaseRepository<T extends Entity> {
     T readById(@NonNull Integer id);
 
     /**Запись entity (добавление или перезапись существующего)*/
-    Integer writeEntity(T entity);
+    Integer writeEntity(T entity) throws AppDaoException;
     /**Удаление по ID*/
     boolean deleteById(Integer id);
 
@@ -52,6 +54,7 @@ public interface BaseRepository<T extends Entity> {
         return result;
     }
 
+    @Nullable
     default T readByIdBase(@NonNull Integer id, @NonNull Resource source,@NonNull Class<T> type) {
         return readAllBase(source, type).stream()
                 .filter(item -> id.equals(item.getId()))
