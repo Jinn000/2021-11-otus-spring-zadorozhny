@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
@@ -19,11 +18,10 @@ public interface BaseRepository<T extends Entity> {
     String DATA_TYPE_MISMATCH = "Data type mismatch";
     String REQUIRED_FIELD_EMPTY = "Required field empty";
     String ID_MISSING = "ID MISSING";
+    String READING_QUESTIONS_FAILED = "Reading questions failed ";
 
 
     Logger logger = Logger.getGlobal();
-
-    String READING_QUESTIONS_FAILED = "Reading questions failed ";
 
 
     /**Получение всего набора данных*/
@@ -53,7 +51,7 @@ public interface BaseRepository<T extends Entity> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.log(Level.WARNING, READING_QUESTIONS_FAILED);
+            logger.warning(READING_QUESTIONS_FAILED);
         }
 
         return result;

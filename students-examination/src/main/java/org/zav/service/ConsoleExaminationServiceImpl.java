@@ -2,7 +2,6 @@ package org.zav.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
 import org.zav.iu.LayoutService;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**Сервис для обмена данными с пользователем*/
-@PropertySource("classpath:application.properties")
 @Service
 public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final BaseRepository<UserResult> userResultRepository;
@@ -81,10 +79,14 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
 
             String answerId = layoutService.ask(questionWithAnswers);
             String messageToUser = answerVerification.verify(q.getId(), answerId);
+
+            layoutService.show(messageToUser);
+            layoutService.show("\n");
+
             UserResult userResult = userResultRepository.readById(userId);
 
             if(userResult == null) {
-                layoutService.show(APPLICATION_ERROR_SORRY);
+                layoutService.show(CAN_T_GET_USER_DATA_ERROR);
                 return;
             }
 
@@ -97,12 +99,8 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 } catch (AppDaoException e) {
                     e.printStackTrace();
                     layoutService.show(BaseRepository.NO_STORAGE_ACCESS);
-                    return;
                 }
             }
-
-            layoutService.show(messageToUser);
-            layoutService.show("\n");
         });
 
         UserResult userResult = userResultRepository.readById(userId);
@@ -152,6 +150,9 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     }
     //----------------------------------------
 
+    /**Получение форматированного блока текста
+     * содержащего вопрос и варианты ответов.
+     * */
     private String getQuestionWithAnswers(String questionId) throws AppDaoException {
         List<Answer> answers = answerRepository.readAll();
         Question question = questionRepository.readById(questionId);
@@ -163,6 +164,6 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 .map(item-> String.format("%s%s. %s",ANSWER_INDENT, item.getPositionNumber(), item.getAnswerDescription()))
                 .collect(Collectors.joining("\n"));
 
-        return String.format("%s. %s \n%s", question.getPositionNumber(), question.getQuestionDescription(), answersByQuestion);
+        return String.format("\n%s. %s \n%s", question.getPositionNumber(), question.getQuestionDescription(), answersByQuestion);
     }
 }

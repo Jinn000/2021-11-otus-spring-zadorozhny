@@ -3,10 +3,7 @@ package org.zav.dao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ContextConfiguration;
-import org.zav.Main;
 import org.zav.model.Question;
 
 import java.util.List;
@@ -15,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisplayName("Тестирование загрузки Question из CSV в ресурсах")
-@ContextConfiguration(classes = Main.class)
 public class QuestionCsvParserImplTest {
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
