@@ -7,13 +7,13 @@ import org.zav.dao.Entity;
 @Data
 public class Answer implements Entity, Comparable<Answer> {
     @CsvBindByName(column = "ID")
-    private Integer id;
+    private String id;
 
     @CsvBindByName(column = "ANSWER_DESCRIPTION")
     private String answerDescription;
 
     @CsvBindByName(column = "QUESTION_ID")
-    private Integer questionId;
+    private String questionId;
 
     @CsvBindByName(column = "POSITION_NUMBER")
     private String positionNumber;

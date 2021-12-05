@@ -7,4 +7,7 @@ public class AppDaoException extends IOException {
     public AppDaoException(String message, Throwable cause) {
         super(message, cause);
     }
+    public AppDaoException(String message) {
+        super(message);
+    }
 }

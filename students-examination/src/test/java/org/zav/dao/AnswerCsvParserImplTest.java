@@ -50,9 +50,9 @@ public class AnswerCsvParserImplTest {
 
         Answer actualData = loadedData.stream().sorted().findFirst().orElse(null);
         Answer expectedData = new Answer();
-        expectedData.setId(0);
+        expectedData.setId("0");
         expectedData.setAnswerDescription("42");
-        expectedData.setQuestionId(0);
+        expectedData.setQuestionId("0");
         expectedData.setPositionNumber("a");
 
         assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);

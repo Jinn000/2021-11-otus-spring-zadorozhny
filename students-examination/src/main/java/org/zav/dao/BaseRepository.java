@@ -6,7 +6,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.zav.utils.exceptions.AppDaoException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -16,6 +15,12 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 public interface BaseRepository<T extends Entity> {
+    String NO_STORAGE_ACCESS = "No storage access";
+    String DATA_TYPE_MISMATCH = "Data type mismatch";
+    String REQUIRED_FIELD_EMPTY = "Required field empty";
+    String ID_MISSING = "ID MISSING";
+
+
     Logger logger = Logger.getGlobal();
 
     String READING_QUESTIONS_FAILED = "Reading questions failed ";
@@ -27,12 +32,12 @@ public interface BaseRepository<T extends Entity> {
 
     /**Получение entity по ID*/
     @Nullable
-    T readById(@NonNull Integer id);
+    T readById(@NonNull String id);
 
     /**Запись entity (добавление или перезапись существующего)*/
-    Integer writeEntity(T entity) throws AppDaoException;
+    String writeEntity(T entity) throws AppDaoException;
     /**Удаление по ID*/
-    boolean deleteById(Integer id);
+    boolean deleteById(String id);
 
     @NonNull
     default List<T> readAllBase(Resource source, Class<T> type) {
@@ -55,7 +60,7 @@ public interface BaseRepository<T extends Entity> {
     }
 
     @Nullable
-    default T readByIdBase(@NonNull Integer id, @NonNull Resource source,@NonNull Class<T> type) {
+    default T readByIdBase(@NonNull String id, @NonNull Resource source,@NonNull Class<T> type) {
         return readAllBase(source, type).stream()
                 .filter(item -> id.equals(item.getId()))
                 .findFirst()

@@ -40,10 +40,10 @@ public class QuestionCsvParserImplTest {
 
         Question actualData = loadedData.stream().sorted().findFirst().orElse(null);
         Question expectedData = new Question();
-        expectedData.setId(0);
+        expectedData.setId("0");
         expectedData.setPositionNumber(1);
         expectedData.setQuestionDescription("The answer to the main question of life, the universe and all that?");
-        expectedData.setValidAnswerId(0);
+        expectedData.setValidAnswerId("0");
 
         assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);
     }

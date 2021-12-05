@@ -15,16 +15,16 @@ public class QuestionTest {
     @Test
     void compareToIsValid() {
         Question left = new Question();
-        left.setId(0);
+        left.setId("0");
         left.setQuestionDescription("aa");
         left.setPositionNumber(1);
-        left.setValidAnswerId(0);
+        left.setValidAnswerId("0");
 
         Question right = new Question();
-        right.setId(5);
+        right.setId("5");
         right.setQuestionDescription("gg");
         right.setPositionNumber(4);
-        right.setValidAnswerId(6);
+        right.setValidAnswerId("6");
 
         assertTrue(left.compareTo(right) < 0, OBJECT_COMPARISON_FAILED);
     }
@@ -33,16 +33,16 @@ public class QuestionTest {
     @Test
     void evenObjectsCompareToIsValid() {
         Question left = new Question();
-        left.setId(0);
+        left.setId("0");
         left.setQuestionDescription("aa");
         left.setPositionNumber(4);
-        left.setValidAnswerId(0);
+        left.setValidAnswerId("0");
 
         Question right = new Question();
-        right.setId(2);
+        right.setId("2");
         right.setQuestionDescription("gg");
         right.setPositionNumber(4);
-        right.setValidAnswerId(6);
+        right.setValidAnswerId("6");
 
         assertEquals(left.compareTo(right), 0, EVEN_OBJECTS_COMPARISON_FAILED);
     }
