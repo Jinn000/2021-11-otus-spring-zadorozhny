@@ -1,9 +1,11 @@
 package org.zav.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
 import org.zav.iu.LayoutService;
@@ -13,6 +15,7 @@ import org.zav.model.UserResult;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,6 +33,13 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final String totalQuestionsCount;
 
     @Override
+    public void run() {
+        String userId = askUserData();
+        runExamination(userId);
+    }
+
+    /**Вывод всех вопросов и вариантов ответов*/
+    @Override
     public void showQuestionsWithAnswers() {
         List<Answer> answers = answerRepository.readAll();
 
@@ -45,6 +55,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
 
     }
 
+    /**Вывод списка вопросов*/
     @Override
     public void showQuestionsOnly() {
         questionRepository.readAll().stream()
@@ -52,9 +63,18 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 .forEach(item -> layoutService.show(String.format("%s. %s%n", item.getPositionNumber(), item.getQuestionDescription())));
     }
 
-    @Override
-    public void runExamination(String userId) {
-        List<Question> questions = questionRepository.readAll();
+//--------------------------------------------------------------
+    /**Запуск тестирования*/
+    private void runExamination(String userId) {
+        final List<Question> questions = questionRepository.readAll();
+
+        try {
+            resetUserResult(userId);
+        } catch (AppDaoException e) {
+            layoutService.show(CAN_T_GET_USER_DATA_ERROR);
+            return;
+        }
+
         questions.forEach(q-> {
             String questionWithAnswers;
             try {
@@ -101,8 +121,8 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         layoutService.show(String.format("Your result is: %s valid answer of %s total.", resultCountValid, totalQuestionsCount));
     }
 
-    @Override
-    public String askUserData() {
+    /**Запрос имени/фамилии*/
+    private String askUserData() {
 
         String name;
         String familyName;
@@ -136,7 +156,6 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
 
         return uuid;
     }
-    //----------------------------------------
 
     /**Получение форматированного блока текста
      * содержащего вопрос и варианты ответов.
@@ -153,5 +172,18 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 .collect(Collectors.joining("\n"));
 
         return String.format("\n%s. %s \n%s", question.getPositionNumber(), question.getQuestionDescription(), answersByQuestion);
+    }
+
+    @Nullable
+    private String resetUserResult(@NonNull String userId) throws AppDaoException {
+        String status = null;
+        Optional<UserResult> userResultOptional = Optional.ofNullable(userResultRepository.readById(userId));
+        if(userResultOptional.isPresent()){
+            UserResult userResult = userResultOptional.get();
+            userResult.setValidAnswerCount("0");
+            status = userResultRepository.writeEntity(userResult);
+        }
+
+        return status;
     }
 }
