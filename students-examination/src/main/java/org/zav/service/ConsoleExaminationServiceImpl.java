@@ -35,17 +35,28 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     @Override
     public void run() {
         String userId = askUserData();
+        if(userId == null) return;
+
         runExamination(userId);
     }
 
     /**Вывод всех вопросов и вариантов ответов*/
     @Override
     public void showQuestionsWithAnswers() {
-        List<Answer> answers = answerRepository.readAll();
+        List<Answer> answers;
+        List<Question> questions;
+        try {
+            answers = answerRepository.readAll();
+            questions = questionRepository.readAll();
+        } catch (AppDaoException e) {
+            layoutService.show(e.getMessage());
+            return;
+        }
 
-        questionRepository.readAll().forEach(question-> {
+        List<Answer> finalAnswers = answers;
+        questions.forEach(question-> {
             layoutService.show(String.format("%s. %s", question.getPositionNumber(), question.getQuestionDescription()));
-            List<String> messages = answers.stream()
+            List<String> messages = finalAnswers.stream()
                     .filter(answer -> answer.getQuestionId().equals(question.getId()))
                     .sorted()
                     .map(item-> String.format("%s%s. %s",ANSWER_INDENT, item.getPositionNumber(), item.getAnswerDescription()))
@@ -58,15 +69,25 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     /**Вывод списка вопросов*/
     @Override
     public void showQuestionsOnly() {
-        questionRepository.readAll().stream()
-                .sorted()
-                .forEach(item -> layoutService.show(String.format("%s. %s%n", item.getPositionNumber(), item.getQuestionDescription())));
+        try {
+            questionRepository.readAll().stream()
+                    .sorted()
+                    .forEach(item -> layoutService.show(String.format("%s. %s%n", item.getPositionNumber(), item.getQuestionDescription())));
+        } catch (AppDaoException e) {
+            layoutService.show(e.getMessage());
+        }
     }
 
 //--------------------------------------------------------------
     /**Запуск тестирования*/
     private void runExamination(String userId) {
-        final List<Question> questions = questionRepository.readAll();
+        final List<Question> questions;
+        try {
+            questions = questionRepository.readAll();
+        } catch (AppDaoException e) {
+            layoutService.show(e.getMessage());
+            return;
+        }
 
         try {
             resetUserResult(userId);
@@ -76,27 +97,25 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         }
 
         questions.forEach(q-> {
-            String questionWithAnswers;
+            UserResult userResult;
+            String messageToUser;
             try {
-                questionWithAnswers = getQuestionWithAnswers(q.getId());
+                final String questionWithAnswers = getQuestionWithAnswers(q.getId());
+                userResult = userResultRepository.readById(userId);
+                final String answerId = layoutService.ask(questionWithAnswers);
+                messageToUser = answerVerification.verify(q.getId(), answerId);
             } catch (AppDaoException e) {
-                e.printStackTrace();
-                layoutService.show(APPLICATION_ERROR_SORRY);
+                layoutService.show(e.getMessage());
                 return;
             }
-
-            String answerId = layoutService.ask(questionWithAnswers);
-            String messageToUser = answerVerification.verify(q.getId(), answerId);
-
-            layoutService.show(messageToUser);
-            layoutService.show("\n");
-
-            UserResult userResult = userResultRepository.readById(userId);
 
             if(userResult == null) {
                 layoutService.show(CAN_T_GET_USER_DATA_ERROR);
                 return;
             }
+
+            layoutService.show(messageToUser);
+            layoutService.show("\n");
 
             if(messageToUser.equals(AnswerVerification.GOOD)){
                 int newValidCount = Integer.parseInt(userResult.getValidAnswerCount()) + 1;
@@ -105,13 +124,19 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 try {
                     userResultRepository.writeEntity(userResult);
                 } catch (AppDaoException e) {
-                    e.printStackTrace();
-                    layoutService.show(BaseRepository.NO_STORAGE_ACCESS);
+                    layoutService.show(e.getMessage());
                 }
             }
         });
 
-        UserResult userResult = userResultRepository.readById(userId);
+        UserResult userResult;
+        try {
+            userResult = userResultRepository.readById(userId);
+        } catch (AppDaoException e) {
+            layoutService.show(e.getMessage());
+            return;
+        }
+
         if(userResult == null) {
             layoutService.show(BaseRepository.ID_MISSING);
             return;
@@ -139,9 +164,15 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
 
         String finalName = name;
         String finalFamilyName = familyName;
-        var userOptional = userResultRepository.readAll().stream()
-                .filter(u-> u.isSameUser(new UserResult().setName(finalName).setFamilyName(finalFamilyName)))
-                .findFirst();
+        Optional<UserResult> userOptional;
+        try {
+            userOptional = userResultRepository.readAll().stream()
+                    .filter(u-> u.isSameUser(new UserResult().setName(finalName).setFamilyName(finalFamilyName)))
+                    .findFirst();
+        } catch (AppDaoException e) {
+            layoutService.show(e.getMessage());
+            return null;
+        }
 
         if(userOptional.isPresent()){
             uuid = userOptional.get().getId();
@@ -149,8 +180,8 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
             try {
                 userResultRepository.writeEntity(new UserResult().setId(uuid).setName(name).setFamilyName(familyName));
             } catch (AppDaoException e) {
-                e.printStackTrace();
                 layoutService.show(I_CANNOT_SAVE_DATA_SORRY);
+                return null;
             }
         }
 

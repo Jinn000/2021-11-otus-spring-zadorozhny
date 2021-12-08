@@ -23,6 +23,7 @@
 
 ### Вопросы:
 - Какие телодвижения нужны чтобы из голого Spring-проекта сделать Spring-boot? Добавить Стартер в pom достаточно?
+- Добавил logback в проект, и появился мусор в консоли (... [main] DEBUG org.springframework.core.env.PropertySourcesPropertyResolver -.....)
 ---
 
 ## Домашнее задание 1

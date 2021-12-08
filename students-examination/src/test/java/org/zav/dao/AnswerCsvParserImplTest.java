@@ -1,24 +1,26 @@
 package org.zav.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.Resource;
 import org.zav.model.Answer;
+import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 //TODO: как лучше получать ресурсы в тестовых классах?
-//TODO: нормально ли создавать тут свой ClassPathXmlApplicationContext?
-//TODO: вижу дуюлирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?
-//TODO: почему при запуске lifecycle maven, не запускаются тесты (Tests run: 0, Failures: 0, Errors: 0, Skipped: 0)
-//TODO: Для тестового домена нужно создавать его папку с ресурсами? Эталонные файлы хранить там?
+//TODO: вижу дублирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?
 //TODO: classpath у тестов смотрит в туда же куда и у main? Не удалось подсунуть тесту файл ресурсов (lass path resource [${sources.path.answers}] cannot be opened because it does not exist)
 
 @DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
+@Slf4j
 public class AnswerCsvParserImplTest {
+    Logger logger = LoggerFactory.getLogger(AnswerCsvParserImplTest.class);
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
@@ -29,7 +31,13 @@ public class AnswerCsvParserImplTest {
     void readAllFromCsvNotBlank() {
         AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
 
-        List<Answer> loadedData = testTarget.readAll();
+        List<Answer> loadedData = null;
+        try {
+            loadedData = testTarget.readAll();
+        } catch (AppDaoException e) {
+            logger.error(BaseRepository.DATA_READING_FAILED);
+            fail(BaseRepository.DATA_READING_FAILED);
+        }
         assertFalse(loadedData.isEmpty(), CSV_READ_BLANK_ERROR);
     }
 
@@ -38,7 +46,13 @@ public class AnswerCsvParserImplTest {
     void readAllFromCsvIsValid() {
         AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
 
-        List<Answer> loadedData = testTarget.readAll();
+        List<Answer> loadedData = null;
+        try {
+            loadedData = testTarget.readAll();
+        } catch (AppDaoException e) {
+            logger.error(BaseRepository.DATA_READING_FAILED);
+            fail(BaseRepository.DATA_READING_FAILED);
+        }
 
         Answer actualData = loadedData.stream().sorted().findFirst().orElse(null);
         Answer expectedData = new Answer();

@@ -1,18 +1,23 @@
 package org.zav.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.Resource;
 import org.zav.model.UserResult;
+import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @DisplayName("Тестирование загрузки User из CSV в ресурсах")
 public class UserResultCsvParserImplTest {
+    Logger logger = LoggerFactory.getLogger(UserResultCsvParserImplTest.class);
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
@@ -23,7 +28,14 @@ public class UserResultCsvParserImplTest {
     void readAllFromCsvNotBlank() {
         BaseRepository<UserResult> testTarget = new UserResultCsvParserImpl(testCsvResource);
 
-        List<UserResult> loadedData = testTarget.readAll();
+        List<UserResult> loadedData = null;
+        try {
+            loadedData = testTarget.readAll();
+        } catch (AppDaoException e) {
+            logger.error(BaseRepository.DATA_READING_FAILED);
+            fail(BaseRepository.DATA_READING_FAILED);
+        }
+
         assertFalse(loadedData.isEmpty(), CSV_READ_BLANK_ERROR);
     }
 
@@ -32,7 +44,13 @@ public class UserResultCsvParserImplTest {
     void readAllFromCsvIsValid() {
         BaseRepository<UserResult> testTarget = new UserResultCsvParserImpl(testCsvResource);
 
-        List<UserResult> loadedData = testTarget.readAll();
+        List<UserResult> loadedData = null;
+        try {
+            loadedData = testTarget.readAll();
+        } catch (AppDaoException e) {
+            logger.error(BaseRepository.DATA_READING_FAILED);
+            fail(BaseRepository.DATA_READING_FAILED);
+        }
 
         UserResult actualData = loadedData.stream().sorted().findFirst().orElse(null);
         UserResult expectedData = new UserResult()

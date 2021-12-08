@@ -18,7 +18,8 @@ public interface BaseRepository<T extends Entity> {
     String DATA_TYPE_MISMATCH = "Data type mismatch";
     String REQUIRED_FIELD_EMPTY = "Required field empty";
     String ID_MISSING = "ID MISSING";
-    String READING_QUESTIONS_FAILED = "Reading questions failed ";
+    String READING_QUESTIONS_FAILED = "Reading questions failed";
+    String DATA_READING_FAILED = "Data reading failed";
 
 
     Logger logger = Logger.getGlobal();
@@ -26,19 +27,19 @@ public interface BaseRepository<T extends Entity> {
 
     /**Получение всего набора данных*/
     @NonNull
-    List<T> readAll();
+    List<T> readAll() throws AppDaoException;
 
     /**Получение entity по ID*/
     @Nullable
-    T readById(@NonNull String id);
+    T readById(@NonNull String id) throws AppDaoException;
 
     /**Запись entity (добавление или перезапись существующего)*/
     String writeEntity(T entity) throws AppDaoException;
     /**Удаление по ID*/
-    boolean deleteById(String id);
+    boolean deleteById(String id) throws AppDaoException;
 
     @NonNull
-    default List<T> readAllBase(Resource source, Class<T> type) {
+    default List<T> readAllBase(Resource source, Class<T> type) throws AppDaoException {
         List<T> result = new ArrayList<>();
         try {
             InputStreamReader targetReader = new InputStreamReader(source.getInputStream());
@@ -51,14 +52,15 @@ public interface BaseRepository<T extends Entity> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.warning(READING_QUESTIONS_FAILED);
+            logger.warning(DATA_READING_FAILED);
+            throw new AppDaoException(DATA_READING_FAILED, e);
         }
 
         return result;
     }
 
     @Nullable
-    default T readByIdBase(@NonNull String id, @NonNull Resource source,@NonNull Class<T> type) {
+    default T readByIdBase(@NonNull String id, @NonNull Resource source,@NonNull Class<T> type) throws AppDaoException{
         return readAllBase(source, type).stream()
                 .filter(item -> id.equals(item.getId()))
                 .findFirst()

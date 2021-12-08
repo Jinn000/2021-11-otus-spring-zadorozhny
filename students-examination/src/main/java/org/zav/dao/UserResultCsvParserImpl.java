@@ -29,14 +29,14 @@ public class UserResultCsvParserImpl implements BaseRepository<UserResult>{
 
     /**Получение всего набора данных*/
     @Override
-    public List<UserResult> readAll() {
+    public List<UserResult> readAll() throws AppDaoException {
         return readAllBase(source, UserResult.class);
     }
 
     /**Получение обьекта по ID*/
     @Nullable
     @Override
-    public UserResult readById(String id) {
+    public UserResult readById(String id) throws AppDaoException {
         return readByIdBase(id, source, UserResult.class);
     }
 
