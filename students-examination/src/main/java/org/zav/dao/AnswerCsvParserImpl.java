@@ -1,5 +1,7 @@
 package org.zav.dao;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
@@ -9,12 +11,11 @@ import org.zav.model.Answer;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnswerCsvParserImpl implements BaseRepository<Answer> {
+    @Value("${sources.path.answers}")
     private final Resource source;
 
-    public AnswerCsvParserImpl(@Value("${sources.path.answers}") Resource source) {
-        this.source = source;
-    }
 
     /**Получение всего набора данных*/
     @NonNull

@@ -1,5 +1,7 @@
 package org.zav.dao;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
@@ -8,15 +10,12 @@ import org.zav.model.Question;
 
 import java.util.List;
 
-//TODO: можно ли использовать ломбок RequiredConstructor , и както передавать в него Value?
-
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class QuestionCsvParserImpl implements BaseRepository<Question> {
+    @Value("${sources.path.questions}")
     private final Resource source;
 
-    public QuestionCsvParserImpl(@Value("${sources.path.questions}") Resource source) {
-        this.source = source;
-    }
 
     /**Получение всего набора данных*/
     @NonNull

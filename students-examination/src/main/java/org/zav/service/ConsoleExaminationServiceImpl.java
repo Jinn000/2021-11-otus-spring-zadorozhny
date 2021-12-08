@@ -1,6 +1,8 @@
 package org.zav.service;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 /**Сервис для обмена данными с пользователем*/
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final BaseRepository<UserResult> userResultRepository;
     private final BaseRepository<Question> questionRepository;
@@ -23,23 +26,8 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final LayoutService<String, String> layoutService;
     private final AnswerVerification answerVerification;
 
-    public ConsoleExaminationServiceImpl(BaseRepository<UserResult> userResultRepository
-            , BaseRepository<Question> questionRepository
-            , BaseRepository<Answer> answerRepository
-            , LayoutService<String, String> layoutService
-            , AnswerVerification answerVerification
-            , @Value("${questions.count}") String totalQuestionsCount) {
-        this.userResultRepository = userResultRepository;
-        this.questionRepository = questionRepository;
-        this.answerRepository = answerRepository;
-        this.layoutService = layoutService;
-        this.answerVerification = answerVerification;
-        this.totalQuestionsCount = totalQuestionsCount;
-    }
-
-
+    @Value("${questions.count}")
     private final String totalQuestionsCount;
-
 
     @Override
     public void showQuestionsWithAnswers() {
