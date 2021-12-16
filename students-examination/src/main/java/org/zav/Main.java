@@ -2,7 +2,6 @@ package org.zav;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.zav.service.ConsoleExaminationServiceImpl;
 import org.zav.service.ExaminationService;
 
@@ -10,14 +9,8 @@ import org.zav.service.ExaminationService;
 public class Main {
 
     public static void main(String[] args ) {
-        String currentUserId;
+        ExaminationService examinationService = SpringApplication.run(Main.class, args).getBean(ConsoleExaminationServiceImpl.class);
 
-        ConfigurableApplicationContext context = SpringApplication.run(Main.class, args);
-
-        ExaminationService examinationService = context.getBean(ConsoleExaminationServiceImpl.class);
-
-        currentUserId = examinationService.askUserData();
-        examinationService.runExamination(currentUserId);
-
+        examinationService.run();
     }
 }
