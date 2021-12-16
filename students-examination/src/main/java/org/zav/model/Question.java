@@ -7,7 +7,7 @@ import org.zav.dao.Entity;
 @Data
 public class Question implements Entity, Comparable<Question> {
     @CsvBindByName(column = "ID")
-    private Integer id;
+    private String id;
 
     @CsvBindByName(column = "POSITION_NUMBER")
     private Integer positionNumber;
@@ -16,7 +16,7 @@ public class Question implements Entity, Comparable<Question> {
     private String questionDescription;
 
     @CsvBindByName(column = "VALID_ANSWER_ID")
-    private Integer validAnswerId;
+    private String validAnswerId;
 
     @Override
     public int compareTo(Question o) {
