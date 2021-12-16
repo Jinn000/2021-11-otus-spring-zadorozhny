@@ -1,6 +1,7 @@
 package org.zav.service;
 
 
+@SuppressWarnings("unused")
 public interface ExaminationService {
     String ENTER_YOUR_NAME = "Enter your name: ";
     String ENTER_YOUR_FAMILY_NAME = "Enter your family name: ";
@@ -10,12 +11,15 @@ public interface ExaminationService {
     String APPLICATION_ERROR_SORRY = "Application error. Sorry.";
     String CAN_T_GET_USER_DATA_ERROR = "Error! Can't get user data.";
 
-    /**Запуск тестирования*/
-    void run();
+    /**Запрос имени/фамилии*/
+    String askUserData();
 
-    /**Вывод всех вопросов и вариантов ответов*/
+    /**Вывод всех вопросов и вараантов ответов*/
     void showQuestionsWithAnswers();
 
     /**Вывод списка вопросов*/
     void showQuestionsOnly();
+
+    /**Запуск тестирования*/
+    void runExamination(String userId);
 }

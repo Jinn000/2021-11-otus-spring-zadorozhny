@@ -1,20 +1,23 @@
 package org.zav;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.zav.service.ConsoleExaminationServiceImpl;
 import org.zav.service.ExaminationService;
 
-@PropertySource("classpath:application.properties")
-@ComponentScan
-@Configuration
+@SpringBootApplication
 public class Main {
 
     public static void main(String[] args ) {
-        ExaminationService examinationService = new AnnotationConfigApplicationContext(Main.class).getBean(ConsoleExaminationServiceImpl.class);
+        String currentUserId;
 
-        examinationService.run();
+        ConfigurableApplicationContext context = SpringApplication.run(Main.class, args);
+
+        ExaminationService examinationService = context.getBean(ConsoleExaminationServiceImpl.class);
+
+        currentUserId = examinationService.askUserData();
+        examinationService.runExamination(currentUserId);
+
     }
 }

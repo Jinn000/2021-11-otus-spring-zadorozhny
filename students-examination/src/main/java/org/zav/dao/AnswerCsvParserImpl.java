@@ -1,33 +1,31 @@
 package org.zav.dao;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.zav.model.Answer;
-import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnswerCsvParserImpl implements BaseRepository<Answer> {
-    @Value("${sources.path.answers}")
     private final Resource source;
 
+    public AnswerCsvParserImpl(@Value("${sources.path.answers}") Resource source) {
+        this.source = source;
+    }
 
     /**Получение всего набора данных*/
     @NonNull
     @Override
-    public List<Answer> readAll() throws AppDaoException{
+    public List<Answer> readAll() {
         return readAllBase(source, Answer.class);
     }
 
     /**Получение обьекта по ID*/
     @Override
-    public Answer readById(@NonNull String id) throws AppDaoException {
+    public Answer readById(@NonNull String id) {
         return readByIdBase(id, source, Answer.class);
     }
 

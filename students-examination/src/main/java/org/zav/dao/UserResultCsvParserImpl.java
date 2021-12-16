@@ -4,8 +4,6 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
@@ -21,22 +19,23 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserResultCsvParserImpl implements BaseRepository<UserResult>{
-    @Value("${sources.path.users}")
     private final Resource source;
 
+    public UserResultCsvParserImpl(@Value("${sources.path.users}") Resource source) {
+        this.source = source;
+    }
 
     /**Получение всего набора данных*/
     @Override
-    public List<UserResult> readAll() throws AppDaoException {
+    public List<UserResult> readAll() {
         return readAllBase(source, UserResult.class);
     }
 
     /**Получение обьекта по ID*/
     @Nullable
     @Override
-    public UserResult readById(String id) throws AppDaoException {
+    public UserResult readById(String id) {
         return readByIdBase(id, source, UserResult.class);
     }
 
@@ -51,6 +50,7 @@ public class UserResultCsvParserImpl implements BaseRepository<UserResult>{
 
         currentUserResults.add(entity);
 
+//        try(Writer writer = new FileWriter(source.getFile().toPath().toString())) {
         try(Writer writer = new OutputStreamWriter( new FileOutputStream(source.getFile().getAbsoluteFile()))) {
             StatefulBeanToCsv<UserResult> sbc = new StatefulBeanToCsvBuilder<UserResult>(writer)
                     .withSeparator('*')

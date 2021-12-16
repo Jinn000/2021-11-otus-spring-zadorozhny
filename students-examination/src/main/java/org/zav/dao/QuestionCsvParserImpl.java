@@ -7,9 +7,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.zav.model.Question;
-import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
+
+//TODO: можно ли использовать ломбок RequiredConstructor , и както передавать в него Value?
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -21,13 +22,13 @@ public class QuestionCsvParserImpl implements BaseRepository<Question> {
     /**Получение всего набора данных*/
     @NonNull
     @Override
-    public List<Question> readAll() throws AppDaoException {
+    public List<Question> readAll() {
         return readAllBase(source, Question.class);
     }
 
     /**Получение обьекта по ID*/
     @Override
-    public Question readById(@NonNull String id) throws AppDaoException {
+    public Question readById(@NonNull String id) {
         return readByIdBase(id, source, Question.class);
     }
 

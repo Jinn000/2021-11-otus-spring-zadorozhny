@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
 import org.zav.model.Answer;
 import org.zav.model.Question;
-import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.Objects;
 
@@ -20,7 +19,7 @@ public class AnswerVerificationImpl implements AnswerVerification{
      * @return Текст ошибки, с указанием правильного ответа*/
     @NonNull
     @Override
-    public String verify(String questionId, String answerPosition) throws AppDaoException {
+    public String verify(String questionId, String answerPosition) {
         String validAnswerId = Objects.requireNonNull(questionRepository.readById(questionId)).getValidAnswerId();
         String validAnswerPosition = Objects.requireNonNull(answerRepository.readById(validAnswerId)).getPositionNumber();
 

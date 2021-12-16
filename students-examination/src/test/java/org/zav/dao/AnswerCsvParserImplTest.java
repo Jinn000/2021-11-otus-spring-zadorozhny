@@ -1,58 +1,56 @@
 package org.zav.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.zav.Main;
 import org.zav.model.Answer;
-import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 //TODO: как лучше получать ресурсы в тестовых классах?
-//TODO: вижу дублирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?
+//TODO: вижу дуюлирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?
 //TODO: classpath у тестов смотрит в туда же куда и у main? Не удалось подсунуть тесту файл ресурсов (lass path resource [${sources.path.answers}] cannot be opened because it does not exist)
-
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = Main.class)
+@TestPropertySource("/application.properties")
+@TestPropertySource("classpath:test.properties")
 @DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
-@Slf4j
 public class AnswerCsvParserImplTest {
-    Logger logger = LoggerFactory.getLogger(AnswerCsvParserImplTest.class);
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("answers_test.csv");
+
+    @Autowired
+    BaseRepository<Answer> testTarget;
+//    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("answers_test.csv");
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test
     void readAllFromCsvNotBlank() {
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
+//        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
 
-        List<Answer> loadedData = null;
-        try {
-            loadedData = testTarget.readAll();
-        } catch (AppDaoException e) {
-            logger.error(BaseRepository.DATA_READING_FAILED);
-            fail(BaseRepository.DATA_READING_FAILED);
-        }
+        List<Answer> loadedData = testTarget.readAll();
         assertFalse(loadedData.isEmpty(), CSV_READ_BLANK_ERROR);
     }
 
     @DisplayName("Проверка чтения эталонного обьекта Answer")
     @Test
     void readAllFromCsvIsValid() {
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
+//        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
 
-        List<Answer> loadedData = null;
-        try {
-            loadedData = testTarget.readAll();
-        } catch (AppDaoException e) {
-            logger.error(BaseRepository.DATA_READING_FAILED);
-            fail(BaseRepository.DATA_READING_FAILED);
-        }
+        List<Answer> loadedData = testTarget.readAll();
 
         Answer actualData = loadedData.stream().sorted().findFirst().orElse(null);
         Answer expectedData = new Answer();
