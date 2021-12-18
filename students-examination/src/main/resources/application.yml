@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: WARN
+
+sources:
+  path:
+    answers: answers.csv
+    questions: questions.csv
+    users: users_result.csv
+
+questions:
+  count: 5
