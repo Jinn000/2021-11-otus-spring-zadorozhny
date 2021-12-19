@@ -2,11 +2,37 @@ logging:
   level:
     root: WARN
 
+questions:
+  count: 5
+
+spring:
+  profiles:
+    active:
+      - test
+    default: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+sources:
+  path:
+    answers: answers_test.csv
+    questions: questions_test.csv
+    users: users_result_test.csv
+
+answerDescription: 42
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
 sources:
   path:
     answers: answers.csv
     questions: questions.csv
     users: users_result.csv
 
-questions:
-  count: 5
+answerDescription: 42

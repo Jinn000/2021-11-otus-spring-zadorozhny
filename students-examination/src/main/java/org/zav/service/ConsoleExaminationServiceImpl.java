@@ -3,8 +3,6 @@ package org.zav.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
@@ -12,6 +10,7 @@ import org.zav.iu.LayoutService;
 import org.zav.model.Answer;
 import org.zav.model.Question;
 import org.zav.model.UserResult;
+import org.zav.testpropertysource.ClassUsingProperty;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
@@ -21,16 +20,14 @@ import java.util.stream.Collectors;
 
 /**Сервис для обмена данными с пользователем*/
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final BaseRepository<UserResult> userResultRepository;
     private final BaseRepository<Question> questionRepository;
     private final BaseRepository<Answer> answerRepository;
     private final LayoutService<String, String> layoutService;
     private final AnswerVerification answerVerification;
-
-    @Value("${questions.count}")
-    private final String totalQuestionsCount;
+    private final ClassUsingProperty classUsingProperty;
 
     @Override
     public void run() {
@@ -143,7 +140,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         }
 
         String resultCountValid = userResult.getValidAnswerCount();
-        layoutService.show(String.format("Your result is: %s valid answer of %s total.", resultCountValid, totalQuestionsCount));
+        layoutService.show(String.format("Your result is: %s valid answer of %d total.", resultCountValid, classUsingProperty.getQuestions().getCount()));
     }
 
     /**Запрос имени/фамилии*/
