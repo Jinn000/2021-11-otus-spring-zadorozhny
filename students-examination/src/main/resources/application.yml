@@ -2,10 +2,14 @@ logging:
   level:
     root: WARN
 
+default-locale: en_EN
+
 questions:
   count: 5
 
 spring:
+  messages:
+    basename: i18n/messages
   profiles:
     active:
       - test
