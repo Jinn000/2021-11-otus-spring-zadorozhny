@@ -7,9 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.zav.Main;
 import org.zav.model.Answer;
 import org.zav.utils.exceptions.AppDaoException;
 
@@ -17,11 +14,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//TODO: как лучше получать ресурсы в тестовых классах?
-//TODO: вижу дублирование кода с QuestionCsvParserImplTest. Как правильнее организовать тестирование?@ExtendWith(SpringExtension.class)
-/*@ContextConfiguration(classes = Main.class)
-@TestPropertySource("/application.properties")
-@TestPropertySource("classpath:test.properties")*/
 @DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
 @Slf4j
 public class AnswerCsvParserImplTest {
@@ -66,6 +58,6 @@ public class AnswerCsvParserImplTest {
         expectedData.setQuestionId("0");
         expectedData.setPositionNumber("a");
 
-        assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);
+        assertEquals(expectedData, actualData, OBJECT_MATCH_ERROR);
     }
 }

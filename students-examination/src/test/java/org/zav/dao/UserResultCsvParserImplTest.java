@@ -58,6 +58,6 @@ public class UserResultCsvParserImplTest {
                 .setName("Igor")
                 .setFamilyName("Riurikovich");
 
-        assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);
+        assertEquals(expectedData, actualData, OBJECT_MATCH_ERROR);
     }
 }

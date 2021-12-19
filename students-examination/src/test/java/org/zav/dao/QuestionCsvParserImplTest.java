@@ -58,6 +58,6 @@ public class QuestionCsvParserImplTest {
         expectedData.setQuestionDescription("The answer to the main question of life, the universe and all that?");
         expectedData.setValidAnswerId("0");
 
-        assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);
+        assertEquals(expectedData, actualData, OBJECT_MATCH_ERROR);
     }
 }
