@@ -9,6 +9,7 @@ spring:
   profiles:
     active:
       - test
+      - dev
     default: dev
 ---
 spring:
