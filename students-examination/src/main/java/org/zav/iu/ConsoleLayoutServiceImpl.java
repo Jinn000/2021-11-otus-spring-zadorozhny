@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**Сервис для вывода данных на экран*/
+@SuppressWarnings("unused")
 @Service
 public class ConsoleLayoutServiceImpl implements LayoutService<String, String> {
     private final Scanner scanner;

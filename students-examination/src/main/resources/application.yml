@@ -2,7 +2,7 @@ logging:
   level:
     root: WARN
 
-default-locale: en_EN
+default-locale: ru-RU
 
 questions:
   count: 5

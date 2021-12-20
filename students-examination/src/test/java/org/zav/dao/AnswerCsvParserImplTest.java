@@ -5,12 +5,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.io.Resource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.zav.model.Answer;
+import org.zav.service.CsvResourceHolderImpl;
+import org.zav.service.LocaleHolder;
+import org.zav.service.ResourceHolder;
+import org.zav.service.SingletonLocaleHolderImpl;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,12 +25,15 @@ public class AnswerCsvParserImplTest {
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("answers_test.csv");
+    private final LocaleHolder localeHolder = SingletonLocaleHolderImpl.getInstance().setLocale(Locale.forLanguageTag("ru-RU"));
+    private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    private final ResourceHolder resourceHolder = new CsvResourceHolderImpl(localeHolder, messageSource);
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test
     void readAllFromCsvNotBlank() {
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
+        messageSource.setBasename("i18n/messages");
+        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl("sources.path.answers", resourceHolder);
 
         List<Answer> loadedData = null;
         try {
@@ -41,7 +48,8 @@ public class AnswerCsvParserImplTest {
     @DisplayName("Проверка чтения эталонного обьекта Answer")
     @Test
     void readAllFromCsvIsValid() {
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl(testCsvResource);
+        messageSource.setBasename("i18n/messages");
+        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl("sources.path.answers", resourceHolder);
 
         List<Answer> loadedData = null;
         try {

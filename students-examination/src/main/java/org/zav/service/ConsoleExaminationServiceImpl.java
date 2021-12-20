@@ -3,6 +3,7 @@ package org.zav.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.MessageSource;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
@@ -14,6 +15,7 @@ import org.zav.testpropertysource.ClassUsingProperty;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,12 +30,14 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final LayoutService<String, String> layoutService;
     private final AnswerVerification answerVerification;
     private final ClassUsingProperty classUsingProperty;
+    private final MessageSource messageSource;
 
     @Override
     public void run() {
         String userId = askUserData();
         if(userId == null) return;
 
+        messageSource.getMessage("sources.path.answers", null, Locale.forLanguageTag("ru-RU"));
         runExamination(userId);
     }
 
