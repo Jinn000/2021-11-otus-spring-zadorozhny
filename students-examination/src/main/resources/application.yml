@@ -2,10 +2,21 @@ logging:
   level:
     root: WARN
 
-default-locale: ru-RU
+default-locale: en-EN
 
 questions:
   count: 5
+
+ui:
+  message-code:
+    enter-your-name-code: ui.message.enter.your.name
+    enter-your-family-name-code: ui.message.enter.your.family.name
+    cannot-save-data-sorry-code: ui.message.cannot.save.data.sorry
+    question-id-missing-code: ui.message.question.id.missing
+    cant-get-user-data-error-code: ui.message.cant.get.user.data.error
+    good-code: ui.message.good
+    you-are-mistaken-the-correct-answer-code: ui.message.you.are.mistaken.the.correct.answer
+    your-result-is-code: ui.message.your.result.is
 
 spring:
   messages:

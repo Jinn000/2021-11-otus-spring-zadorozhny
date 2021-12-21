@@ -1,6 +1,7 @@
 package org.zav.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,8 +19,8 @@ import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
 @Slf4j
+@DisplayName("Тестирование загрузки Answer из CSV в ресурсах")
 public class AnswerCsvParserImplTest {
     Logger logger = LoggerFactory.getLogger(AnswerCsvParserImplTest.class);
 
@@ -28,13 +29,16 @@ public class AnswerCsvParserImplTest {
     private final LocaleHolder localeHolder = SingletonLocaleHolderImpl.getInstance().setLocale(Locale.forLanguageTag("ru-RU"));
     private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
     private final ResourceHolder resourceHolder = new CsvResourceHolderImpl(localeHolder, messageSource);
+    private final BaseRepository<Answer> testTarget = new AnswerCsvParserImpl("sources.test.path.answers", resourceHolder);
+
+    @BeforeEach
+    public void setUp() {
+        messageSource.setBasename("i18n/messages");
+    }
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test
     void readAllFromCsvNotBlank() {
-        messageSource.setBasename("i18n/messages");
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl("sources.path.answers", resourceHolder);
-
         List<Answer> loadedData = null;
         try {
             loadedData = testTarget.readAll();
@@ -48,9 +52,6 @@ public class AnswerCsvParserImplTest {
     @DisplayName("Проверка чтения эталонного обьекта Answer")
     @Test
     void readAllFromCsvIsValid() {
-        messageSource.setBasename("i18n/messages");
-        AnswerCsvParserImpl testTarget = new AnswerCsvParserImpl("sources.path.answers", resourceHolder);
-
         List<Answer> loadedData = null;
         try {
             loadedData = testTarget.readAll();

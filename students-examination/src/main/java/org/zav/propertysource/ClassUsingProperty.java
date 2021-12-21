@@ -1,4 +1,4 @@
-package org.zav.testpropertysource;
+package org.zav.propertysource;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -11,13 +11,11 @@ import org.zav.iu.LayoutService;
 import org.zav.model.Answer;
 import org.zav.model.Question;
 import org.zav.model.UserResult;
-import org.zav.testpropertysource.ClassUsingProperty;
+import org.zav.propertysource.ClassUsingProperty;
+import org.zav.propertysource.UiMessagesFromProperty;
 import org.zav.utils.exceptions.AppDaoException;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**Сервис для обмена данными с пользователем*/
@@ -30,7 +28,9 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final LayoutService<String, String> layoutService;
     private final AnswerVerification answerVerification;
     private final ClassUsingProperty classUsingProperty;
+    private final LocaleHolder localeHolder;
     private final MessageSource messageSource;
+    private final UiMessagesFromProperty uiMessagesFromProperty;
 
     @Override
     public void run() {
@@ -93,7 +93,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         try {
             resetUserResult(userId);
         } catch (AppDaoException e) {
-            layoutService.show(CAN_T_GET_USER_DATA_ERROR);
+            layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null, localeHolder.getLocale()));
             return;
         }
 
@@ -104,21 +104,24 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 final String questionWithAnswers = getQuestionWithAnswers(q.getId());
                 userResult = userResultRepository.readById(userId);
                 final String answerId = layoutService.ask(questionWithAnswers);
-                messageToUser = answerVerification.verify(q.getId(), answerId);
+
+                messageToUser = answerVerification.verify(q.getId(), answerId)
+                        ? messageSource.getMessage(uiMessagesFromProperty.getGoodCode(), null, localeHolder.getLocale())
+                        : String.format("%s: %s", messageSource.getMessage(uiMessagesFromProperty.getYouAreMistakenTheCorrectAnswerCode(), null, localeHolder.getLocale()), Objects.requireNonNull(answerRepository.readById(q.getValidAnswerId())).getAnswerDescription());
             } catch (AppDaoException e) {
                 layoutService.show(e.getMessage());
                 return;
             }
 
             if(userResult == null) {
-                layoutService.show(CAN_T_GET_USER_DATA_ERROR);
+                layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null, localeHolder.getLocale()));
                 return;
             }
 
             layoutService.show(messageToUser);
             layoutService.show("\n");
 
-            if(messageToUser.equals(AnswerVerification.GOOD)){
+            if(messageToUser.equals(messageSource.getMessage(uiMessagesFromProperty.getGoodCode(), null, localeHolder.getLocale()))){
                 int newValidCount = Integer.parseInt(userResult.getValidAnswerCount()) + 1;
                 userResult.setValidAnswerCount(String.valueOf(newValidCount));
 
@@ -144,7 +147,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         }
 
         String resultCountValid = userResult.getValidAnswerCount();
-        layoutService.show(String.format("Your result is: %s valid answer of %d total.", resultCountValid, classUsingProperty.getQuestions().getCount()));
+        layoutService.show(String.format(messageSource.getMessage(uiMessagesFromProperty.getYourResultIsCode(), null, localeHolder.getLocale()), resultCountValid, classUsingProperty.getQuestions().getCount()));
     }
 
     /**Запрос имени/фамилии*/
@@ -154,11 +157,11 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         String familyName;
 
         do {
-            name = layoutService.ask(ENTER_YOUR_NAME);
+            name = layoutService.ask(messageSource.getMessage(uiMessagesFromProperty.getEnterYourNameCode(), null, localeHolder.getLocale()));
         } while (StringUtils.isAllBlank(name));
 
         do {
-            familyName = layoutService.ask(ENTER_YOUR_FAMILY_NAME);
+            familyName = layoutService.ask(messageSource.getMessage(uiMessagesFromProperty.getEnterYourFamilyNameCode(), null, localeHolder.getLocale()));
         } while (StringUtils.isAllBlank(familyName));
 
         String uuid = UUID.randomUUID().toString();
@@ -181,7 +184,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
             try {
                 userResultRepository.writeEntity(new UserResult().setId(uuid).setName(name).setFamilyName(familyName));
             } catch (AppDaoException e) {
-                layoutService.show(I_CANNOT_SAVE_DATA_SORRY);
+                layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCannotSaveDataSorryCode(), null, localeHolder.getLocale()));
                 return null;
             }
         }
@@ -195,7 +198,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private String getQuestionWithAnswers(String questionId) throws AppDaoException {
         List<Answer> answers = answerRepository.readAll();
         Question question = questionRepository.readById(questionId);
-        if (question == null) throw new AppDaoException(QUESTION_ID_MISSING);
+        if (question == null) throw new AppDaoException(messageSource.getMessage(uiMessagesFromProperty.getQuestionIdMissingCode(), null, localeHolder.getLocale()));
 
         String answersByQuestion = answers.stream()
                 .filter(answer -> answer.getQuestionId().equals(question.getId()))
