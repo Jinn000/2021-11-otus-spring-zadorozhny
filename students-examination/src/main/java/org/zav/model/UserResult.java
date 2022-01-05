@@ -1,8 +1,7 @@
 package org.zav.model;
 
 import com.opencsv.bean.CsvBindByName;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.zav.dao.Entity;
 
@@ -11,6 +10,9 @@ import java.util.Objects;
 @Data
 @EqualsAndHashCode
 @Accessors(chain = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class UserResult implements Entity, Comparable<UserResult> {
     @CsvBindByName(column = "USER_ID")
     private String id;
@@ -40,5 +42,10 @@ public class UserResult implements Entity, Comparable<UserResult> {
     @Override
     public int compareTo(UserResult o) {
         return this.id.compareTo(o.id);
+    }
+
+    @Override
+    public String toString(){
+        return String.format("Имя: %s; Фамилия: %s; Количество правильных ответов: %s", name, familyName, validAnswerCount);
     }
 }
