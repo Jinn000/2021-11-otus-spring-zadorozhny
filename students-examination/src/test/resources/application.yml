@@ -10,3 +10,6 @@ expectedData:
   answerDescription: 42
 
 answerDescription: 42
+spring:
+  messages:
+    basename: i18n/messages
