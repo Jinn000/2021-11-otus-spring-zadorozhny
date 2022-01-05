@@ -8,7 +8,6 @@ import org.zav.utils.exceptions.AppDaoException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -40,7 +39,7 @@ public interface BaseRepository<T extends Entity> {
 
     @NonNull
     default List<T> readAllBase(Resource source, Class<T> type) throws AppDaoException {
-        List<T> result = new ArrayList<>();
+        List<T> result;
         try {
             InputStreamReader targetReader = new InputStreamReader(source.getInputStream());
             result = new CsvToBeanBuilder<T>(targetReader)

@@ -20,10 +20,10 @@ public class AnswerVerificationImpl implements AnswerVerification{
      * @return Текст ошибки, с указанием правильного ответа*/
     @NonNull
     @Override
-    public String verify(String questionId, String answerPosition) throws AppDaoException {
+    public boolean verify(String questionId, String answerPosition) throws AppDaoException {
         String validAnswerId = Objects.requireNonNull(questionRepository.readById(questionId)).getValidAnswerId();
         String validAnswerPosition = Objects.requireNonNull(answerRepository.readById(validAnswerId)).getPositionNumber();
 
-        return validAnswerPosition.equals(answerPosition) ? GOOD : String.format("%s: %s", YOU_ARE_MISTAKEN_THE_CORRECT_ANSWER_IS, Objects.requireNonNull(answerRepository.readById(validAnswerId)).getAnswerDescription());
+        return validAnswerPosition.equals(answerPosition);
     }
 }

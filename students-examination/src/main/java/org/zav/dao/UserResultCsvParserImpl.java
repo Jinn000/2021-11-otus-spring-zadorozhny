@@ -7,10 +7,10 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.zav.model.UserResult;
+import org.zav.service.ResourceHolder;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.io.FileOutputStream;
@@ -23,21 +23,25 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserResultCsvParserImpl implements BaseRepository<UserResult>{
-    @Value("${sources.path.users}")
-    private final Resource source;
+/*    @Value("${sources.path.users}")
+    private final Resource source;*/
+
+    @Value("sources.path.users")
+    private final String pathPropertyName;
+    private final ResourceHolder resourceHolder;
 
 
     /**Получение всего набора данных*/
     @Override
     public List<UserResult> readAll() throws AppDaoException {
-        return readAllBase(source, UserResult.class);
+        return readAllBase(resourceHolder.getResource(pathPropertyName), UserResult.class);
     }
 
     /**Получение обьекта по ID*/
     @Nullable
     @Override
     public UserResult readById(String id) throws AppDaoException {
-        return readByIdBase(id, source, UserResult.class);
+        return readByIdBase(id, resourceHolder.getResource(pathPropertyName), UserResult.class);
     }
 
     @Nullable
@@ -51,7 +55,7 @@ public class UserResultCsvParserImpl implements BaseRepository<UserResult>{
 
         currentUserResults.add(entity);
 
-        try(Writer writer = new OutputStreamWriter( new FileOutputStream(source.getFile().getAbsoluteFile()))) {
+        try(Writer writer = new OutputStreamWriter( new FileOutputStream(resourceHolder.getResource(pathPropertyName).getFile().getAbsoluteFile()))) {
             StatefulBeanToCsv<UserResult> sbc = new StatefulBeanToCsvBuilder<UserResult>(writer)
                     .withSeparator('*')
                     .build();

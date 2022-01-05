@@ -1,16 +1,21 @@
 package org.zav.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.io.Resource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.zav.model.Question;
+import org.zav.service.CsvResourceHolderImpl;
+import org.zav.service.LocaleHolder;
+import org.zav.service.ResourceHolder;
+import org.zav.service.SingletonLocaleHolderImpl;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,13 +26,19 @@ public class QuestionCsvParserImplTest {
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    final Resource testCsvResource = new AnnotationConfigApplicationContext().getResource("questions_test.csv");
+    private final LocaleHolder localeHolder = SingletonLocaleHolderImpl.getInstance().setLocale(Locale.forLanguageTag("ru-RU"));
+    private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    private final ResourceHolder resourceHolder = new CsvResourceHolderImpl(localeHolder, messageSource);
+    private final BaseRepository<Question> testTarget = new QuestionCsvParserImpl("sources.test.path.questions", resourceHolder);
+
+    @BeforeEach
+    public void setUp() {
+        messageSource.setBasename("i18n/messages");
+    }
 
     @DisplayName("Проверка загрузки таблицы целиком")
     @Test
     void readAllFromCsvNotBlank() {
-        QuestionCsvParserImpl testTarget = new QuestionCsvParserImpl(testCsvResource);
-
         List<Question> loadedData = null;
         try {
             loadedData = testTarget.readAll();
@@ -41,8 +52,6 @@ public class QuestionCsvParserImplTest {
     @DisplayName("Проверка чтения эталонного обьекта Question")
     @Test
     void readAllFromCsvIsValid() {
-        QuestionCsvParserImpl testTarget = new QuestionCsvParserImpl(testCsvResource);
-
         List<Question> loadedData = null;
         try {
             loadedData = testTarget.readAll();
@@ -55,9 +64,9 @@ public class QuestionCsvParserImplTest {
         Question expectedData = new Question();
         expectedData.setId("0");
         expectedData.setPositionNumber(1);
-        expectedData.setQuestionDescription("The answer to the main question of life, the universe and all that?");
+        expectedData.setQuestionDescription(messageSource.getMessage("expected.test.questions", null, localeHolder.getLocale()));
         expectedData.setValidAnswerId("0");
 
-        assertEquals(actualData, expectedData, OBJECT_MATCH_ERROR);
+        assertEquals(expectedData, actualData, OBJECT_MATCH_ERROR);
     }
 }

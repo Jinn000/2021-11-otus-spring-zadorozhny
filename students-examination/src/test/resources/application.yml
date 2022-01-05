@@ -1,0 +1,12 @@
+
+default-locale: ru-RU
+
+sources:
+  path:
+    answers: answers_test.csv
+    questions: questions_test.csv
+
+expectedData:
+  answerDescription: 42
+
+answerDescription: 42

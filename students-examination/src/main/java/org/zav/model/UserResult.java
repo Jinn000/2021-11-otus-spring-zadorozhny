@@ -11,7 +11,7 @@ import java.util.Objects;
 @Data
 @EqualsAndHashCode
 @Accessors(chain = true)
-public class UserResult implements Entity {
+public class UserResult implements Entity, Comparable<UserResult> {
     @CsvBindByName(column = "USER_ID")
     private String id;
     @CsvBindByName(column = "USER_NAME")
@@ -37,4 +37,8 @@ public class UserResult implements Entity {
         return Objects.equals(this.familyName, other.familyName);
     }
 
+    @Override
+    public int compareTo(UserResult o) {
+        return this.id.compareTo(o.id);
+    }
 }
