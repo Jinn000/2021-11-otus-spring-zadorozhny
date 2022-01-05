@@ -1,39 +1,39 @@
 package org.zav.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.zav.Main;
 import org.zav.model.UserResult;
-import org.zav.service.CsvResourceHolderImpl;
-import org.zav.service.LocaleHolder;
-import org.zav.service.ResourceHolder;
-import org.zav.service.SingletonLocaleHolderImpl;
 import org.zav.utils.exceptions.AppDaoException;
 
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DisplayName("Тестирование загрузки User из CSV в ресурсах")
+@ContextConfiguration(classes = Main.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class UserResultCsvParserImplTest {
     Logger logger = LoggerFactory.getLogger(UserResultCsvParserImplTest.class);
 
     public static final String CSV_READ_BLANK_ERROR = "Can`t read CSV.";
     public static final String OBJECT_MATCH_ERROR = "The object read did not match the expected one.";
-    private final LocaleHolder localeHolder = SingletonLocaleHolderImpl.getInstance().setLocale(Locale.forLanguageTag("ru-RU"));
-    private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-    private final ResourceHolder resourceHolder = new CsvResourceHolderImpl(localeHolder, messageSource);
-    private final BaseRepository<UserResult> testTarget = new UserResultCsvParserImpl("sources.test.path.users", resourceHolder);
 
-    @BeforeEach
-    public void setUp() {
-        messageSource.setBasename("i18n/messages");
+    private final BaseRepository<UserResult> testTarget;
+
+    @Autowired
+    public UserResultCsvParserImplTest(BaseRepository<UserResult> testTarget) {
+        this.testTarget = testTarget;
     }
 
     @DisplayName("Проверка загрузки таблицы целиком")

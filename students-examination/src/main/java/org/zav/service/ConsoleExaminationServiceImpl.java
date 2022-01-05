@@ -3,7 +3,6 @@ package org.zav.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.MessageSource;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.zav.dao.BaseRepository;
@@ -15,7 +14,10 @@ import org.zav.propertysource.ClassUsingProperty;
 import org.zav.propertysource.UiMessagesFromProperty;
 import org.zav.utils.exceptions.AppDaoException;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**Сервис для обмена данными с пользователем*/
@@ -28,8 +30,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private final LayoutService<String, String> layoutService;
     private final AnswerVerification answerVerification;
     private final ClassUsingProperty classUsingProperty;
-    private final LocaleHolder localeHolder;
-    private final MessageSource messageSource;
+    private final LocalizedMessageSource messageSource;
     private final UiMessagesFromProperty uiMessagesFromProperty;
 
     @Override
@@ -37,7 +38,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         String userId = askUserData();
         if(userId == null) return;
 
-        messageSource.getMessage("sources.path.answers", null, Locale.forLanguageTag("ru-RU"));
+        messageSource.getLocalizedMessage("sources.path.answers", null);
         runExamination(userId);
     }
 
@@ -50,7 +51,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
             answers = answerRepository.readAll();
             questions = questionRepository.readAll();
         } catch (AppDaoException e) {
-            layoutService.show(e.getMessage());
+            layoutService.show(e.getLocalizedMessage());
             return;
         }
 
@@ -75,7 +76,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                     .sorted()
                     .forEach(item -> layoutService.show(String.format("%s. %s%n", item.getPositionNumber(), item.getQuestionDescription())));
         } catch (AppDaoException e) {
-            layoutService.show(e.getMessage());
+            layoutService.show(e.getLocalizedMessage());
         }
     }
 
@@ -86,14 +87,14 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         try {
             questions = questionRepository.readAll();
         } catch (AppDaoException e) {
-            layoutService.show(e.getMessage());
+            layoutService.show(e.getLocalizedMessage());
             return;
         }
 
         try {
             resetUserResult(userId);
         } catch (AppDaoException e) {
-            layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null, localeHolder.getLocale()));
+            layoutService.show(messageSource.getLocalizedMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null));
             return;
         }
 
@@ -106,29 +107,29 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                 final String answerId = layoutService.ask(questionWithAnswers);
 
                 messageToUser = answerVerification.verify(q.getId(), answerId)
-                        ? messageSource.getMessage(uiMessagesFromProperty.getGoodCode(), null, localeHolder.getLocale())
-                        : String.format("%s: %s", messageSource.getMessage(uiMessagesFromProperty.getYouAreMistakenTheCorrectAnswerCode(), null, localeHolder.getLocale()), Objects.requireNonNull(answerRepository.readById(q.getValidAnswerId())).getAnswerDescription());
+                        ? messageSource.getLocalizedMessage(uiMessagesFromProperty.getGoodCode(), null)
+                        : String.format("%s: %s", messageSource.getLocalizedMessage(uiMessagesFromProperty.getYouAreMistakenTheCorrectAnswerCode(), null), Objects.requireNonNull(answerRepository.readById(q.getValidAnswerId())).getAnswerDescription());
             } catch (AppDaoException e) {
-                layoutService.show(e.getMessage());
+                layoutService.show(e.getLocalizedMessage());
                 return;
             }
 
             if(userResult == null) {
-                layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null, localeHolder.getLocale()));
+                layoutService.show(messageSource.getLocalizedMessage(uiMessagesFromProperty.getCantGetUserDataErrorCode(), null));
                 return;
             }
 
             layoutService.show(messageToUser);
             layoutService.show("\n");
 
-            if(messageToUser.equals(messageSource.getMessage(uiMessagesFromProperty.getGoodCode(), null, localeHolder.getLocale()))){
+            if(messageToUser.equals(messageSource.getLocalizedMessage(uiMessagesFromProperty.getGoodCode(), null))){
                 int newValidCount = Integer.parseInt(userResult.getValidAnswerCount()) + 1;
                 userResult.setValidAnswerCount(String.valueOf(newValidCount));
 
                 try {
                     userResultRepository.writeEntity(userResult);
                 } catch (AppDaoException e) {
-                    layoutService.show(e.getMessage());
+                    layoutService.show(e.getLocalizedMessage());
                 }
             }
         });
@@ -137,7 +138,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         try {
             userResult = userResultRepository.readById(userId);
         } catch (AppDaoException e) {
-            layoutService.show(e.getMessage());
+            layoutService.show(e.getLocalizedMessage());
             return;
         }
 
@@ -147,7 +148,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         }
 
         String resultCountValid = userResult.getValidAnswerCount();
-        layoutService.show(String.format(messageSource.getMessage(uiMessagesFromProperty.getYourResultIsCode(), null, localeHolder.getLocale()), resultCountValid, classUsingProperty.getQuestions().getCount()));
+        layoutService.show(String.format(messageSource.getLocalizedMessage(uiMessagesFromProperty.getYourResultIsCode(), null), resultCountValid, classUsingProperty.getQuestions().getCount()));
     }
 
     /**Запрос имени/фамилии*/
@@ -157,11 +158,11 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
         String familyName;
 
         do {
-            name = layoutService.ask(messageSource.getMessage(uiMessagesFromProperty.getEnterYourNameCode(), null, localeHolder.getLocale()));
+            name = layoutService.ask(messageSource.getLocalizedMessage(uiMessagesFromProperty.getEnterYourNameCode(), null));
         } while (StringUtils.isAllBlank(name));
 
         do {
-            familyName = layoutService.ask(messageSource.getMessage(uiMessagesFromProperty.getEnterYourFamilyNameCode(), null, localeHolder.getLocale()));
+            familyName = layoutService.ask(messageSource.getLocalizedMessage(uiMessagesFromProperty.getEnterYourFamilyNameCode(), null));
         } while (StringUtils.isAllBlank(familyName));
 
         String uuid = UUID.randomUUID().toString();
@@ -174,7 +175,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
                     .filter(u-> u.isSameUser(new UserResult().setName(finalName).setFamilyName(finalFamilyName)))
                     .findFirst();
         } catch (AppDaoException e) {
-            layoutService.show(e.getMessage());
+            layoutService.show(e.getLocalizedMessage());
             return null;
         }
 
@@ -184,7 +185,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
             try {
                 userResultRepository.writeEntity(new UserResult().setId(uuid).setName(name).setFamilyName(familyName));
             } catch (AppDaoException e) {
-                layoutService.show(messageSource.getMessage(uiMessagesFromProperty.getCannotSaveDataSorryCode(), null, localeHolder.getLocale()));
+                layoutService.show(messageSource.getLocalizedMessage(uiMessagesFromProperty.getCannotSaveDataSorryCode(), null));
                 return null;
             }
         }
@@ -198,7 +199,7 @@ public class ConsoleExaminationServiceImpl implements ExaminationService {
     private String getQuestionWithAnswers(String questionId) throws AppDaoException {
         List<Answer> answers = answerRepository.readAll();
         Question question = questionRepository.readById(questionId);
-        if (question == null) throw new AppDaoException(messageSource.getMessage(uiMessagesFromProperty.getQuestionIdMissingCode(), null, localeHolder.getLocale()));
+        if (question == null) throw new AppDaoException(messageSource.getLocalizedMessage(uiMessagesFromProperty.getQuestionIdMissingCode(), null));
 
         String answersByQuestion = answers.stream()
                 .filter(answer -> answer.getQuestionId().equals(question.getId()))
