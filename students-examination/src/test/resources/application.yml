@@ -11,5 +11,10 @@ expectedData:
 
 answerDescription: 42
 spring:
+  shell:
+    interactive:
+      enabled: false
+  main:
+    allow-circular-references: true
   messages:
     basename: i18n/messages

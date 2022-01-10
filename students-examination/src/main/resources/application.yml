@@ -19,6 +19,8 @@ ui:
     your-result-is-code: ui.message.your.result.is
 
 spring:
+  main:
+    allow-circular-references: true
   messages:
     basename: i18n/messages
   profiles:
