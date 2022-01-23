@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.zav.storedbooksinfo.domain.Author;
+import ru.zav.storedbooksinfo.domain.AuthorSet;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import javax.validation.constraints.NotNull;
@@ -14,26 +15,28 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class AuthorDaoJdbc implements AuthorDao{
+public class AuthorSetDaoJdbc implements AuthorSetDao{
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
+    private AuthorDao authorDao;
 
-    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
+    public AuthorSetDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, AuthorDao authorDao) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
+        this.authorDao = authorDao;
     }
 
-    /**Получение Author по ID
-     * @return Объект Author*/
+    /**Получение AuthorSet по ID
+     * @return Объект AuthorSet*/
     @Override
-    public Author getById(String id) throws AppDaoException {
+    public AuthorSet getById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
-        final String sql = "SELECT a.id, a.first_name, a.last_name, a.family_name FROM AUTHOR a WHERE a.id = :id";
-        final Author author;
+        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.id = :id";
+        final AuthorSet authorSet;
         try {
-            author = namedParameterJdbcOperations.queryForObject(sql, parameters, new AuthorMapper());
+            authorSet = namedParameterJdbcOperations.queryForObject(sql, parameters, new AuthorSetMapper());
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
         }
-        return author;
+        return authorSet;
     }
 
     /**Удаление по ID
@@ -41,7 +44,7 @@ public class AuthorDaoJdbc implements AuthorDao{
     @Override
     public int deleteById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
-        final String sql = "DELETE FROM AUTHOR a WHERE a.id = :id";
+        final String sql = "DELETE FROM AUTHORS_SET a WHERE a.id = :id";
 
         try {
             return namedParameterJdbcOperations.update(sql, parameters);
@@ -53,14 +56,13 @@ public class AuthorDaoJdbc implements AuthorDao{
     /**Вставка обьекта.
      * @return количество добавленных строк*/
     @Override
-    public int insert(Author author) throws AppDaoException {
+    public int insert(AuthorSet authorSet) throws AppDaoException {
         final Map<String, String> parameters = Map.of(
-                "id", author.getId()
-                , "first_name", author.getFirstName()
-                ,"last_name", author.getLastName()
-                ,"family_name", author.getFamilyName());
+                "id", authorSet.getId()
+                , "authors_set_id", authorSet.getAuthorSetId()
+                ,"author_id", authorSet.getAuthor().getId());
 
-        final String sql = "INSERT INTO AUTHOR (id, first_name, last_name, family_name) values (:id, :firstName, :lastName, :familyName)";
+        final String sql = "INSERT INTO AUTHORS_SET (id, authors_set_id, author_id) values (:id, :authors_set_id, :author_id)";
 
         try {
             return namedParameterJdbcOperations.update(sql, parameters);
@@ -72,21 +74,21 @@ public class AuthorDaoJdbc implements AuthorDao{
     /**Получение всего содержимого таблицы*/
     @NotNull
     @Override
-    public List<Author> readAll() throws AppDaoException {
-        final String sql = "SELECT a.id, a.first_name, a.last_name, a.family_name FROM AUTHOR a";
-        final List<Author> authorList;
+    public List<AuthorSet> readAll() throws AppDaoException {
+        final String sql = "SELECT a.id, a.authors_set_id, a.author_id FROM AUTHORS_SET a";
+        final List<AuthorSet> authorSetList;
         try {
-            authorList = namedParameterJdbcOperations.query(sql, new AuthorMapper());
+            authorSetList = namedParameterJdbcOperations.query(sql, new AuthorSetMapper());
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
         }
-        return authorList;
+        return authorSetList;
     }
 
     /**Очистка таблицы*/
     @Override
     public void clearAll() throws AppDaoException {
-        final String sql = "TRUNCATE TABLE AUTHOR";
+        final String sql = "TRUNCATE TABLE AUTHORS_SET";
         try {
             namedParameterJdbcOperations.update(sql, Map.of());
         } catch (Exception e) {
@@ -97,15 +99,21 @@ public class AuthorDaoJdbc implements AuthorDao{
 
 
     @Getter
-    static final class AuthorMapper implements RowMapper<Author> {
-        @Override
-        public Author mapRow(ResultSet rs, int rowNum) throws SQLException {
-            String id = rs.getString("id");
-            String firstName = rs.getString("first_name");
-            String lastName = rs.getString("last_name");
-            String familyName = rs.getString("family_name");
+    final class AuthorSetMapper implements RowMapper<AuthorSet> {
 
-            return new Author(id, firstName, lastName, familyName);
+        @Override
+        public AuthorSet mapRow(ResultSet rs, int rowNum) throws SQLException {
+            String id = rs.getString("id");
+            String authorSetId = rs.getString("authors_set_id");
+            String authorId = rs.getString("author_id");
+
+            final Author author;
+            try {
+                author = authorDao.getById(authorId);
+                return new AuthorSet(id, authorSetId, author);
+            } catch (AppDaoException e) {
+                throw new SQLException(String.format("Не удалось преобразовать ResultSet в объект. Причина: %s", e.getCause()), e);
+            }
         }
     }
 }
