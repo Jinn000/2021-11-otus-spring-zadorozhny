@@ -11,6 +11,7 @@ import ru.zav.storedbooksinfo.utils.AppDaoException;
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,37 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
             throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
         }
         return authorSet;
+    }
+    /**Получение коллекции AuthorSet по ID автора
+     * @return Объект AuthorSet*/
+    @NotNull
+    @Override
+    public List<AuthorSet> findByAuthorId(String authorId) throws AppDaoException {
+        final Map<String, String> parameters = Map.of("authorId", authorId);
+        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.author_id = :authorId";
+        List<AuthorSet> authorSetList = new ArrayList<>();
+        try {
+            authorSetList = namedParameterJdbcOperations.query(sql, parameters, new AuthorSetMapper());
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
+        }
+        return authorSetList;
+    }
+
+    /**Получение коллекции AuthorSet по ID автора
+     * @return Объект AuthorSet*/
+    @NotNull
+    @Override
+    public List<AuthorSet> findByAuthorsSetId(String authorsSetId) throws AppDaoException {
+        final Map<String, String> parameters = Map.of("authorsSetId", authorsSetId);
+        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.authors_set_id = :authorsSetId";
+        List<AuthorSet> authorSetList = new ArrayList<>();
+        try {
+            authorSetList = namedParameterJdbcOperations.query(sql, parameters, new AuthorSetMapper());
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
+        }
+        return authorSetList;
     }
 
     /**Удаление по ID
