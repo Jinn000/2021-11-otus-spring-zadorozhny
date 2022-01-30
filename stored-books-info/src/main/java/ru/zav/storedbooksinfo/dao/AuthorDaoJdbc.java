@@ -56,9 +56,9 @@ public class AuthorDaoJdbc implements AuthorDao{
     public int insert(Author author) throws AppDaoException {
         final Map<String, String> parameters = Map.of(
                 "id", author.getId()
-                , "first_name", author.getFirstName()
-                ,"last_name", author.getLastName()
-                ,"family_name", author.getFamilyName());
+                , "firstName", author.getFirstName()
+                ,"lastName", author.getLastName()
+                ,"familyName", author.getFamilyName());
 
         final String sql = "INSERT INTO AUTHOR (id, first_name, last_name, family_name) values (:id, :firstName, :lastName, :familyName)";
 

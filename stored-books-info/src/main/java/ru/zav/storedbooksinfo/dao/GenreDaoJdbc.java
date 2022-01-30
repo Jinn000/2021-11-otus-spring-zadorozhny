@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
+import ru.zav.storedbooksinfo.dao.datatypes.EntityId;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class GenreDaoJdbc implements GenreDao{
@@ -24,8 +26,8 @@ public class GenreDaoJdbc implements GenreDao{
     /**Получение Genre по ID
      * @return Объект Genre*/
     @Override
-    public Genre getById(String id) throws AppDaoException {
-        final Map<String, String> parameters = Map.of("id", id);
+    public Genre getById(EntityId id) throws AppDaoException {
+        final Map<String, String> parameters = Map.of("id", id.getIdValue());
         final String sql = "SELECT g.id, g.description FROM GENRE g WHERE g.id = :id";
         final Genre genre;
         try {
@@ -39,8 +41,8 @@ public class GenreDaoJdbc implements GenreDao{
     /**Удаление по ID
      * @return количество удаленных строк*/
     @Override
-    public int deleteById(String id) throws AppDaoException {
-        final Map<String, String> parameters = Map.of("id", id);
+    public int deleteById(EntityId id) throws AppDaoException {
+        final Map<String, String> parameters = Map.of("id", id.getIdValue());
         final String sql = "DELETE FROM GENRE g WHERE g.id = :id";
 
         try {
@@ -54,6 +56,14 @@ public class GenreDaoJdbc implements GenreDao{
      * @return количество добавленных строк*/
     @Override
     public int insert(Genre genre) throws AppDaoException {
+        if(genre.getDescription() == null) throw new AppDaoException("Ошибка! Не указан Description для добавляемого жанра.");
+
+        final boolean isDuplicate = readAll().stream()
+                .map(Genre::getDescription)
+                .anyMatch(item -> item.equals(genre.getDescription()));
+
+        if(isDuplicate) return 0; // дубли очевидно не нужны
+
         final Map<String, String> parameters = Map.of("id", genre.getId(), "description", genre.getDescription());
         final String sql = "INSERT INTO GENRE (id, description) values (:id, :description)";
 
@@ -89,6 +99,20 @@ public class GenreDaoJdbc implements GenreDao{
         }
     }
 
+    @Override
+    public Optional<Genre> findByDescription(String description) throws AppDaoException {
+        if(description == null) throw new AppDaoException("Ошибка! Не указан Description жанра для поиска.");
+
+        final Map<String, String> parameters = Map.of("description", description);
+        final String sql = "SELECT g.id, g.description FROM GENRE g WHERE g.description = :description";
+        Optional<Genre> genreOpt;
+        try {
+            genreOpt = Optional.ofNullable(namedParameterJdbcOperations.queryForObject(sql, parameters, new GenreMapper()));
+        } catch (Exception e) {
+            genreOpt = Optional.empty();
+        }
+        return genreOpt;
+    }
 
 
     @Getter
