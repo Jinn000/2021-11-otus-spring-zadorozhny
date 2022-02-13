@@ -2,6 +2,7 @@ package ru.zav.storedbooksinfo.dao;
 
 import ru.zav.storedbooksinfo.domain.AuthorSet;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface BookDao {
     List<Book> readAll() throws AppDaoException;
     void clearAll() throws AppDaoException;
     Optional<String> findAuthorSetIdByBookId(String id) throws AppDaoException;
+    List<Book> findByGenre(Genre genre) throws AppDaoException;
 }

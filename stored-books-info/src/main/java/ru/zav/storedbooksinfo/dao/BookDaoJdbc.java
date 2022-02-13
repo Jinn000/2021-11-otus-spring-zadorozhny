@@ -16,6 +16,7 @@ import ru.zav.storedbooksinfo.utils.UuidGeneratorNoDashes;
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -193,6 +194,21 @@ public class BookDaoJdbc implements BookDao{
         }
         return authorsSetId;
 
+    }
+
+    @Override
+    public List<Book> findByGenre(Genre genre) throws AppDaoException {
+        if(genre == null) return new ArrayList<>();
+
+        final Map<String, String> parameters = Map.of("genreId", genre.getId());
+        final String sql = "SELECT b.id, b.TITLE, b.GENRE_ID, b.AUTHORS_SET_ID FROM BOOK b WHERE b.GENRE_ID = :genreId";
+        final List<Book> bookList;
+        try {
+            bookList = namedParameterJdbcOperations.query(sql, parameters, new BookMapper());
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
+        }
+        return bookList;
     }
 
 

@@ -62,6 +62,8 @@ public class StoredBooksInfoApplication {
 		}*/
 
 		Console.main(args);
+
+		SpringApplication.run(StoredBooksInfoApplication.class, args);
 	}
 
 }

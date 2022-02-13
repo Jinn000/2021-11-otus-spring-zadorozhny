@@ -1,9 +1,13 @@
 package ru.zav.storedbooksinfo.dao;
 
+import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
+import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface AuthorDao {
     Author getById(String id) throws AppDaoException;
@@ -11,4 +15,5 @@ public interface AuthorDao {
     int insert(Author author) throws AppDaoException;
     List<Author> readAll() throws AppDaoException;
     void clearAll() throws AppDaoException;
+    Optional<Author> findByFullName(FullName fullName)throws AppDaoException;
 }

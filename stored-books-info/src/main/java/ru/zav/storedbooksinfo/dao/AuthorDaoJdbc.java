@@ -4,7 +4,9 @@ import lombok.Getter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
+import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
+import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class AuthorDaoJdbc implements AuthorDao{
@@ -94,6 +97,25 @@ public class AuthorDaoJdbc implements AuthorDao{
         }
     }
 
+    @Override
+    public Optional<Author> findByFullName(FullName fullName) throws AppDaoException {
+        if(fullName == null) throw new AppDaoException("Ошибка! Не указан имя для поиска.");
+
+        final Map<String, String> parameters = Map.of("firstName", fullName.getFirstName()
+                                                        ,"lastName", fullName.getLastName()
+                                                        ,"familyName", fullName.getFamilyName());
+        final String sql = "SELECT a.id, a.first_name, a.last_name, a.family_name FROM AUTHOR a " +
+                "WHERE upper(a.first_name) = upper(:firstName) " +
+                "AND upper(a.last_name) = upper(:lastName) " +
+                "AND upper(a.family_name) = upper(:familyName)";
+        Optional<Author> authorOpt;
+        try {
+            authorOpt = Optional.ofNullable(namedParameterJdbcOperations.queryForObject(sql, parameters, new AuthorDaoJdbc.AuthorMapper()));
+        } catch (Exception e) {
+            authorOpt = Optional.empty();
+        }
+        return authorOpt;
+    }
 
 
     @Getter
