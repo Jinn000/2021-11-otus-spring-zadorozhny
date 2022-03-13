@@ -1,6 +1,7 @@
 package ru.zav.storedbooksinfo.dao;
 
 import lombok.Getter;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
@@ -30,9 +31,11 @@ public class AuthorDaoJdbc implements AuthorDao{
     public Author getById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
         final String sql = "SELECT a.id, a.first_name, a.last_name, a.family_name FROM AUTHOR a WHERE a.id = :id";
-        final Author author;
+        Author author;
         try {
             author = namedParameterJdbcOperations.queryForObject(sql, parameters, new AuthorMapper());
+        } catch (EmptyResultDataAccessException emptyEx) {
+            author = null;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
         }

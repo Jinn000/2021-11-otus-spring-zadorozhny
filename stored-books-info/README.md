@@ -20,6 +20,10 @@
 
     НЕ делать AbstractDao.
     НЕ делать наследования в тестах
+    
+Вопросы:
+
+    Не удалось восстановить данные при тесте удаления авторов (shouldCorrectClearAll).    
 
 ### Reference Documentation
 For further reference, please consider the following sections:
