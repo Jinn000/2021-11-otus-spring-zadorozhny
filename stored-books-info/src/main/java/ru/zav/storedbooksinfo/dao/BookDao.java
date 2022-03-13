@@ -16,4 +16,5 @@ public interface BookDao {
     void clearAll() throws AppDaoException;
     Optional<String> findAuthorSetIdByBookId(String id) throws AppDaoException;
     List<Book> findByGenre(Genre genre) throws AppDaoException;
+    List<Book> findByTitle(String title) throws AppDaoException;
 }

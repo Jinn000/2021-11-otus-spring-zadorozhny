@@ -26,6 +26,6 @@ public class ConsoleLayoutServiceImpl implements LayoutService<String, String> {
     @Override
     public String ask(String message) {
         if(StringUtils.isNoneBlank(message)) show(message);
-        return scanner.next();
+        return scanner.nextLine();
     }
 }

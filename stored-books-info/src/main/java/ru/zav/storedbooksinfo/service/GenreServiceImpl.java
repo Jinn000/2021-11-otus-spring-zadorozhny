@@ -63,7 +63,7 @@ public class GenreServiceImpl implements GenreService {
             throw new AppServiceException(e.getMessage(), e);
         }
 
-        var deletedCount = genreOptional.filter(genre -> {
+        Integer deletedCount = genreOptional.filter(genre -> {
             try {
                 return !isUsed(genre);
             } catch (AppServiceException e) {
@@ -131,6 +131,15 @@ public class GenreServiceImpl implements GenreService {
             throw new AppServiceException(e.getMessage(), e);
         }
         return genreList;
+    }
+
+    @Override
+    public Optional<Genre> findByDescription(String description) throws AppServiceException {
+        try {
+            return genreDao.findByDescription(description);
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
     }
 
     private boolean isUsed(Genre genre) throws AppServiceException {

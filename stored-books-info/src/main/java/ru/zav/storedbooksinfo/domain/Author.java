@@ -13,4 +13,9 @@ public class Author {
     private String firstName;
     private String lastName;
     private String familyName;
+
+    @Override
+    public String toString() {
+        return String.format("%s %s %s", firstName, lastName, familyName);
+    }
 }

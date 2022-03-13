@@ -5,6 +5,12 @@ public interface BooksInfoUi {
     void genreAdd();
     void genreDelete();
     void showGenres();
+
     void authorAdd();
     void showAuthors();
+
+    void bookAdd();
+    void bookDelete();
+    void bookRename();
+    void showBooks();
 }

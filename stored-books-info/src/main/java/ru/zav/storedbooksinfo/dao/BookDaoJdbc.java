@@ -61,16 +61,32 @@ public class BookDaoJdbc implements BookDao{
     @Override
     public int deleteById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
-        final String sql = "DELETE FROM BOOK b WHERE b.id = :id";
 
+        // удаление всех authorSet для удаляемых книг (они более нигде не задействованы)
         try {
+            final String sql = "SELECT b.authors_set_id FROM BOOK b WHERE b.id = :id";
+            final List<String> authorSetIdList = namedParameterJdbcOperations.query(sql, parameters, new StringMapper());
+            authorSetIdList.forEach(authorSetId-> {
+                try {
+                    authorSetDao.deleteById(authorSetId);
+                } catch (AppDaoException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
+        }
+
+        //Непосредственно удаление книги
+        try {
+            final String sql = "DELETE FROM BOOK b WHERE b.id = :id";
             return namedParameterJdbcOperations.update(sql, parameters);
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
     }
 
-    /**Вставка обьекта.
+    /**Вставка нового обьекта/апдейт существующего.
      * @return количество добавленных строк*/
     @Override
     public int insert(Book book) throws AppDaoException {
@@ -111,22 +127,6 @@ public class BookDaoJdbc implements BookDao{
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось добавить автора к перечню авторов книги %s. Причина: %s", book.getId(), e.getCause()), e);
         }
-/*        authorSetByBookId.map(setId -> book.getAuthors().forEach(author -> {
-            try {
-                authorSetDao.insert(new AuthorSet(new UuidGeneratorNoDashes().generateUuid(), setId, author));
-            } catch (AppDaoException e) {
-                e.printStackTrace();
-            }
-        })).orElse(() -> {
-            String newSetId = new UuidGeneratorNoDashes().generateUuid();
-            book.getAuthors().forEach(author -> {
-                try {
-                    authorSetDao.insert(new AuthorSet(new UuidGeneratorNoDashes().generateUuid(), newSetId, author));
-                } catch (AppDaoException e) {
-                    e.printStackTrace();
-                }
-            });
-        });*/
 
         if(authorSetByBookId.isEmpty()) throw new AppDaoException(String.format("Не определен ID перечня авторов книги с ID: %s", book.getId()));
 
@@ -202,6 +202,19 @@ public class BookDaoJdbc implements BookDao{
 
         final Map<String, String> parameters = Map.of("genreId", genre.getId());
         final String sql = "SELECT b.id, b.TITLE, b.GENRE_ID, b.AUTHORS_SET_ID FROM BOOK b WHERE b.GENRE_ID = :genreId";
+        final List<Book> bookList;
+        try {
+            bookList = namedParameterJdbcOperations.query(sql, parameters, new BookMapper());
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
+        }
+        return bookList;
+    }
+
+    public List<Book> findByTitle(String title) throws AppDaoException {
+        final Map<String, String> parameters = Map.of("title", title);
+        final String sql = "SELECT b.id, b.title, b.genre_id, b.authors_set_id FROM BOOK b WHERE UPPER(b.title) LIKE '%'||UPPER(:title)||'%'";
+
         final List<Book> bookList;
         try {
             bookList = namedParameterJdbcOperations.query(sql, parameters, new BookMapper());

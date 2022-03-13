@@ -72,6 +72,23 @@ public class AuthorDaoJdbc implements AuthorDao{
         }
     }
 
+    @Override
+    public int update(Author author) throws AppDaoException {
+        final Map<String, String> parameters = Map.of(
+                "id", author.getId()
+                , "firstName", author.getFirstName()
+                ,"lastName", author.getLastName()
+                ,"familyName", author.getFamilyName());
+
+        final String sql = "UPDATE AUTHOR SET first_name = :firstName, last_name = :lastName, family_name = :familyName WHERE id = :id";
+
+        try {
+            return namedParameterJdbcOperations.update(sql, parameters);
+        } catch (Exception e) {
+            throw new AppDaoException(String.format("Редактирование обьекта не удалась. Причина: %s", e.getCause()), e);
+        }
+    }
+
     /**Получение всего содержимого таблицы*/
     @NotNull
     @Override

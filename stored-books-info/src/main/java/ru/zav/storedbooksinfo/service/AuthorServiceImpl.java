@@ -68,7 +68,7 @@ public class AuthorServiceImpl implements AuthorService {
         var updatedCount = authorOptional.map(author -> {
             final Author newAuthor = new Author(author.getId(), newName.getFirstName(), newName.getLastName(), newName.getFamilyName());
             try {
-                return authorDao.insert(newAuthor);
+                return authorDao.update(newAuthor);
             } catch (AppDaoException e) {
                 e.printStackTrace();
             }
@@ -94,5 +94,14 @@ public class AuthorServiceImpl implements AuthorService {
             throw new AppServiceException(e.getMessage(), e);
         }
         return authorList;
+    }
+
+    @Override
+    public Optional<Author> findByFullName(FullName fullName) throws AppServiceException {
+        try {
+            return authorDao.findByFullName(fullName);
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
     }
 }
