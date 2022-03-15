@@ -58,6 +58,8 @@ class AuthorDaoJdbcTest {
         authorDao.insert(expectedAuthor);
         final Author actualPerson = authorDao.getById(expectedAuthor.getId());
         assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
+
+        authorDao.deleteById(expectedAuthor.getId());
     }
 
     @DisplayName("Проверка способности изменить данные Автора.")
@@ -86,7 +88,7 @@ class AuthorDaoJdbcTest {
         assertThat(authorOptional.get()).usingRecursiveComparison().isEqualTo(expectedAuthor);
     }
 
-    @DisplayName("Проверка очистки таблицы с Авторами.")
+/*    @DisplayName("Проверка очистки таблицы с Авторами.")
     @Test
     void shouldCorrectClearAll() throws AppDaoException {
         final List<Author> storeAuthorList = authorDao.readAll();
@@ -103,7 +105,7 @@ class AuthorDaoJdbcTest {
                 log.error(e.getLocalizedMessage());
             }
         });
-    }
+    }*/
 
     @DisplayName("Проверка получения Автора по ФИО")
     @Test

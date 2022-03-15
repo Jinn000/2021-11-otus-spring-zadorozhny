@@ -1,6 +1,7 @@
 package ru.zav.storedbooksinfo.dao;
 
 import lombok.Getter;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
@@ -29,9 +30,11 @@ public class GenreDaoJdbc implements GenreDao{
     public Genre getById(EntityId id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id.getIdValue());
         final String sql = "SELECT g.id, g.description FROM GENRE g WHERE g.id = :id";
-        final Genre genre;
+        Genre genre;
         try {
             genre = namedParameterJdbcOperations.queryForObject(sql, parameters, new GenreMapper());
+        }catch (EmptyResultDataAccessException emptyEx) {
+            genre = null;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось получить объект. Причина: %s", e.getCause()), e);
         }
