@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-import ru.zav.storedbooksinfo.dao.AuthorDao;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
@@ -16,9 +15,7 @@ import ru.zav.storedbooksinfo.service.BookService;
 import ru.zav.storedbooksinfo.service.BooksInfoUi;
 import ru.zav.storedbooksinfo.service.GenreService;
 import ru.zav.storedbooksinfo.ui.LayoutService;
-import ru.zav.storedbooksinfo.utils.AppDomainException;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
-import ru.zav.storedbooksinfo.utils.UuidGeneratorNoDashes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,6 @@ public class ShellCommands implements BooksInfoUi {
     private final GenreService genreService;
     private final AuthorService authorService;
     private final BookService bookService;
-    private final AuthorDao authorDao;
 
 
     //---------------------------------------------
@@ -256,7 +252,7 @@ public class ShellCommands implements BooksInfoUi {
     public void bookDelete() {
         layoutService.show("Удаление книги.");
         final String bookTitle = layoutService.ask("Введите название для удаления.");
-        List<Book> bookList = new ArrayList<>();
+        final List<Book> bookList;
         try {
             bookList = bookService.findByTitle(bookTitle);
         } catch (AppServiceException e) {
@@ -284,7 +280,11 @@ public class ShellCommands implements BooksInfoUi {
                 final String bookToDeleteId = bookList.get(itemToDelete - 1).getId();
                 try {
                     final int deletedCount = bookService.delete(bookToDeleteId);
-                    layoutService.show("Книга удалена.");
+                    if (deletedCount > 0) {
+                        layoutService.show("Книга удалена.");
+                    } else {
+                        layoutService.show("Книга удалить не удалось.");
+                    }
                 } catch (AppServiceException e) {
                     layoutService.show(String.format("Не удалось удалить книгу %s. Причина: %s", bookList.get(itemToDelete - 1).getTitle(), e.getCause()));
                 }
@@ -299,7 +299,7 @@ public class ShellCommands implements BooksInfoUi {
     public void bookRename() {
         layoutService.show("Переименование книги.");
         final String bookTitle = layoutService.ask("Введите название для переименования.");
-        List<Book> bookList = new ArrayList<>();
+        final List<Book> bookList;
         try {
             bookList = bookService.findByTitle(bookTitle);
         } catch (AppServiceException e) {

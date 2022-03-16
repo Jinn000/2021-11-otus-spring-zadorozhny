@@ -26,7 +26,7 @@ class AuthorDaoJdbcTest {
     private final AuthorDao authorDao;
 
     @Autowired
-    AuthorDaoJdbcTest(AuthorDaoJdbc authorDao) {
+    AuthorDaoJdbcTest(AuthorDao authorDao) {
         this.authorDao = authorDao;
     }
 
