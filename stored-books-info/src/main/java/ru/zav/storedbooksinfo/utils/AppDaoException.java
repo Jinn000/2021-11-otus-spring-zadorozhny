@@ -1,6 +1,6 @@
 package ru.zav.storedbooksinfo.utils;
 
-public class AppDaoException extends Exception{
+public class AppDaoException extends RuntimeException{
 
     public AppDaoException(String message) {
         super(message);

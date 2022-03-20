@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 @Repository
 public class BookDaoJdbc implements BookDao{
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private GenreDao genreDao;
-    private AuthorDao authorDao;
-    private AuthorSetDao authorSetDao;
+    private final GenreDao genreDao;
+    private final AuthorDao authorDao;
+    private final AuthorSetDao authorSetDao;
 
     public BookDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, GenreDao genreDao, AuthorDao authorDao, AuthorSetDao authorSetDao) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
