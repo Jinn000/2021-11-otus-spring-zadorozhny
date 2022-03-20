@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.AuthorSet;
 import ru.zav.storedbooksinfo.domain.Book;
@@ -48,13 +50,11 @@ class BookDaoJdbcTest {
     void shouldCorrectDeleteById() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Optional<Book> deletedBookOpt = bookDao.getById("B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
-        assertThat(deletedBookOpt.isPresent());
+        assertThat(deletedBookOpt.isPresent()).isTrue();
 
         deletedBookOpt.map(Book::getId).map(bookDao::deleteById);
         final Optional<Book> actualBookOpt = deletedBookOpt.map(Book::getId).flatMap(bookDao::getById);
         assertThat(actualBookOpt.isPresent()).isFalse();
-
-        deletedBookOpt.map(bookDao::insert);
     }
 
     @DisplayName("Проверка способности добавлять Книги.")
@@ -69,8 +69,6 @@ class BookDaoJdbcTest {
 
         assertThat(actualBook.isPresent()).isTrue();
         assertThat(actualBook.get()).usingRecursiveComparison().isEqualTo(expectedBook);
-
-        bookDao.deleteById(expectedBook.getId());
     }
 
     @DisplayName("Проверка получения всех Книг.")
@@ -108,7 +106,7 @@ class BookDaoJdbcTest {
         assertThat(fakeBooks.isEmpty()).isTrue();
     }
 
-    @DisplayName("Проверка получения Книг по жанрам.")
+    @DisplayName("Проверка получения Книг по названию.")
     @Test
     void shouldCorrectFindByTitle() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -141,13 +139,15 @@ class BookDaoJdbcTest {
 
 /*    @DisplayName("Проверка очистки таблицы с Книгами.")
     @Test
+    @Transactional
+    @Rollback(value = true)
     void shouldCorrectClearAll() throws AppDaoException {
         final List<Book> storeBookList = bookDao.readAll();
 
         bookDao.clearAll();
         final List<Book> actualBookList = bookDao.readAll();
         assertThat(actualBookList.isEmpty()).isTrue();
-
+*//*
         //восстановить данные
         storeBookList.forEach(book -> {
             try {
@@ -155,10 +155,6 @@ class BookDaoJdbcTest {
             } catch (AppDaoException e) {
                 log.error(e.getLocalizedMessage());
             }
-        });
+        });*//*
     }*/
-
-    @Test
-    void clearAll() {
-    }
 }

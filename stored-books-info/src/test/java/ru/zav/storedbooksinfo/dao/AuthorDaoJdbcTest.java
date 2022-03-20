@@ -47,8 +47,6 @@ class AuthorDaoJdbcTest {
         authorDao.deleteById(deletedAuthor.getId());
         final Author actualPerson = authorDao.getById(deletedAuthor.getId());
         assertThat(actualPerson).isNull();
-
-        authorDao.insert(deletedAuthor);
     }
 
     @DisplayName("Проверка способности добавлять автора.")
@@ -58,8 +56,6 @@ class AuthorDaoJdbcTest {
         authorDao.insert(expectedAuthor);
         final Author actualPerson = authorDao.getById(expectedAuthor.getId());
         assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
-
-        authorDao.deleteById(expectedAuthor.getId());
     }
 
     @DisplayName("Проверка способности изменить данные Автора.")
@@ -69,10 +65,6 @@ class AuthorDaoJdbcTest {
         authorDao.update(expectedAuthor);
         final Author actualPerson = authorDao.getById(expectedAuthor.getId());
         assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
-
-        // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
-        final Author rollbackAuthor = new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь");
-        authorDao.update(rollbackAuthor);
     }
 
     @DisplayName("Проверка получения всех Авторов.")

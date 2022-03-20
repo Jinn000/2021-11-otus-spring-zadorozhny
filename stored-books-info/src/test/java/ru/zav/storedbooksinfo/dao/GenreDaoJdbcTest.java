@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.zav.storedbooksinfo.dao.datatypes.EntityId;
-import ru.zav.storedbooksinfo.datatypes.FullName;
-import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 import ru.zav.storedbooksinfo.utils.UuidGeneratorNoDashes;
@@ -17,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DisplayName("Проверка DAO работы с Жанрами:")
@@ -48,8 +45,6 @@ class GenreDaoJdbcTest {
         genreDao.deleteById(new EntityId(deletedGenre.getId()));
         final Genre actualGenre = genreDao.getById(new EntityId(deletedGenre.getId()));
         assertThat(actualGenre).isNull();
-
-        genreDao.insert(deletedGenre);
     }
 
     @DisplayName("Проверка способности добавлять Жанр.")
@@ -59,8 +54,6 @@ class GenreDaoJdbcTest {
         genreDao.insert(expectedGenre);
         final Genre actualGenre = genreDao.getById(new EntityId(expectedGenre.getId()));
         assertThat(actualGenre).usingRecursiveComparison().isEqualTo(expectedGenre);
-
-        genreDao.deleteById(new EntityId(expectedGenre.getId()));
     }
 
     @DisplayName("Проверка получения всех Жанров.")

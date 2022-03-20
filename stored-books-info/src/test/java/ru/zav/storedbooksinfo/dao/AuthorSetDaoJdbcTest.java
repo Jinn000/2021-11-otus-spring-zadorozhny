@@ -54,8 +54,6 @@ class AuthorSetDaoJdbcTest {
         final AuthorSet actualAuthorSet = authorSetDao.getById(deletedAuthorSet.getId());
 
         assertThat(actualAuthorSet).isNull();
-
-        authorSetDao.insert(deletedAuthorSet);
     }
 
     @DisplayName("Проверка способности добавлять AuthorSet.")
@@ -68,8 +66,6 @@ class AuthorSetDaoJdbcTest {
         final AuthorSet actualAuthorSet = authorSetDao.getById(expectedAuthorSet.getId());
 
         assertThat(actualAuthorSet).usingRecursiveComparison().isEqualTo(expectedAuthorSet);
-
-        authorDao.deleteById(expectedAuthorSet.getId());
     }
 
     @DisplayName("Проверка получения всех AuthorSet.")
