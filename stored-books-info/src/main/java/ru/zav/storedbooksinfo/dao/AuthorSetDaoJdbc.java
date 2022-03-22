@@ -18,11 +18,9 @@ import java.util.Map;
 @Repository
 public class AuthorSetDaoJdbc implements AuthorSetDao{
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final AuthorDao authorDao;
 
-    public AuthorSetDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, AuthorDao authorDao) {
+    public AuthorSetDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.authorDao = authorDao;
     }
 
     /**Получение AuthorSet по ID
@@ -30,7 +28,11 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
     @Override
     public AuthorSet getById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
-        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.id = :id";
+        final String sql = "SELECT s.id, s.authors_set_id,"
+                + " a.id AUTHOR_ID, a.FIRST_NAME AUTHOR_FIRST_NAME, a.LAST_NAME AUTHOR_LAST_NAME, a.FAMILY_NAME AUTHOR_FAMILY_NAME"
+                + " FROM AUTHORS_SET s"
+                + " INNER JOIN AUTHOR a ON a.id = s.AUTHOR_ID"
+                + " WHERE s.id = :id";
         AuthorSet authorSet;
         try {
             authorSet = namedParameterJdbcOperations.queryForObject(sql, parameters, new AuthorSetMapper());
@@ -47,7 +49,11 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
     @Override
     public List<AuthorSet> findByAuthorId(String authorId) throws AppDaoException {
         final Map<String, String> parameters = Map.of("authorId", authorId);
-        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.author_id = :authorId";
+        final String sql = "SELECT s.id, s.authors_set_id,"
+                + " a.id AUTHOR_ID, a.FIRST_NAME AUTHOR_FIRST_NAME, a.LAST_NAME AUTHOR_LAST_NAME, a.FAMILY_NAME AUTHOR_FAMILY_NAME"
+                + " FROM AUTHORS_SET s"
+                + " INNER JOIN AUTHOR a ON a.id = s.AUTHOR_ID"
+                + " WHERE s.author_id = :authorId";
         final List<AuthorSet> authorSetList;
         try {
             authorSetList = namedParameterJdbcOperations.query(sql, parameters, new AuthorSetMapper());
@@ -63,7 +69,11 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
     @Override
     public List<AuthorSet> findByAuthorsSetId(String authorsSetId) throws AppDaoException {
         final Map<String, String> parameters = Map.of("authorsSetId", authorsSetId);
-        final String sql = "SELECT a.id, a.authors_set_id, a.author_id, FROM AUTHORS_SET a WHERE a.authors_set_id = :authorsSetId";
+        final String sql = "SELECT s.id, s.authors_set_id,"
+                + " a.id AUTHOR_ID, a.FIRST_NAME AUTHOR_FIRST_NAME, a.LAST_NAME AUTHOR_LAST_NAME, a.FAMILY_NAME AUTHOR_FAMILY_NAME"
+                + " FROM AUTHORS_SET s"
+                + " INNER JOIN AUTHOR a ON a.id = s.AUTHOR_ID"
+                + " WHERE s.authors_set_id = :authorsSetId";
         final List<AuthorSet> authorSetList;
         try {
             authorSetList = namedParameterJdbcOperations.query(sql, parameters, new AuthorSetMapper());
@@ -109,7 +119,10 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
     @NotNull
     @Override
     public List<AuthorSet> readAll() throws AppDaoException {
-        final String sql = "SELECT a.id, a.authors_set_id, a.author_id FROM AUTHORS_SET a";
+        final String sql = "SELECT s.id, s.authors_set_id,"
+                + " a.id AUTHOR_ID, a.FIRST_NAME AUTHOR_FIRST_NAME, a.LAST_NAME AUTHOR_LAST_NAME, a.FAMILY_NAME AUTHOR_FAMILY_NAME"
+                + " FROM AUTHORS_SET s"
+                + " INNER JOIN AUTHOR a ON a.id = s.AUTHOR_ID";
         final List<AuthorSet> authorSetList;
         try {
             authorSetList = namedParameterJdbcOperations.query(sql, new AuthorSetMapper());
@@ -133,17 +146,20 @@ public class AuthorSetDaoJdbc implements AuthorSetDao{
 
 
     @Getter
-    final class AuthorSetMapper implements RowMapper<AuthorSet> {
+    static final class AuthorSetMapper implements RowMapper<AuthorSet> {
 
         @Override
         public AuthorSet mapRow(ResultSet rs, int rowNum) throws SQLException {
             String id = rs.getString("id");
             String authorSetId = rs.getString("authors_set_id");
-            String authorId = rs.getString("author_id");
+            String authorId = rs.getString("AUTHOR_ID");
+            String authorFirstName = rs.getString("AUTHOR_FIRST_NAME");
+            String authorLastName = rs.getString("AUTHOR_LAST_NAME");
+            String authorFamilyName = rs.getString("AUTHOR_FAMILY_NAME");
 
             final Author author;
             try {
-                author = authorDao.getById(authorId);
+                author = new Author(authorId, authorFirstName, authorLastName, authorFamilyName);
                 return new AuthorSet(id, authorSetId, author);
             } catch (AppDaoException e) {
                 throw new SQLException(String.format("Не удалось преобразовать ResultSet в объект. Причина: %s", e.getCause()), e);

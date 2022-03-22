@@ -25,23 +25,21 @@ import java.util.stream.Collectors;
 @Repository
 public class BookDaoJdbc implements BookDao{
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final GenreDao genreDao;
-    private final AuthorDao authorDao;
     private final AuthorSetDao authorSetDao;
 
-    public BookDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, GenreDao genreDao, AuthorDao authorDao, AuthorSetDao authorSetDao) {
+    public BookDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, AuthorSetDao authorSetDao) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.genreDao = genreDao;
-        this.authorDao = authorDao;
         this.authorSetDao = authorSetDao;
     }
 
     /**Получение Book по ID
-     * @return Объект AuthorSet*/
+     * @return Объект Book*/
     @Override
     public Optional<Book> getById(String id) throws AppDaoException {
         final Map<String, String> parameters = Map.of("id", id);
-        final String sql = "SELECT b.id, b.title, b.genre_id, b.authors_set_id FROM BOOK b WHERE b.id = :id";
+        final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
+                + " INNER JOIN GENRE g ON g.id = b.GENRE_ID"
+                + " WHERE b.id = :id";
         Optional<Book> bookOptional;
 
         try {
@@ -151,7 +149,8 @@ public class BookDaoJdbc implements BookDao{
     @NotNull
     @Override
     public List<Book> readAll() throws AppDaoException {
-        final String sql = "SELECT b.id, b.title, b.genre_id, b.authors_set_id FROM BOOK b";
+        final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
+                + " INNER JOIN GENRE g ON g.id = b.GENRE_ID";
         final List<Book> bookList;
         try {
             bookList = namedParameterJdbcOperations.query(sql, new BookMapper());
@@ -201,7 +200,9 @@ public class BookDaoJdbc implements BookDao{
         if(genre == null) return new ArrayList<>();
 
         final Map<String, String> parameters = Map.of("genreId", genre.getId());
-        final String sql = "SELECT b.id, b.TITLE, b.GENRE_ID, b.AUTHORS_SET_ID FROM BOOK b WHERE b.GENRE_ID = :genreId";
+        final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
+                + " INNER JOIN GENRE g ON g.id = b.GENRE_ID"
+                + " WHERE b.GENRE_ID = :genreId";
         final List<Book> bookList;
         try {
             bookList = namedParameterJdbcOperations.query(sql, parameters, new BookMapper());
@@ -213,7 +214,9 @@ public class BookDaoJdbc implements BookDao{
 
     public List<Book> findByTitle(String title) throws AppDaoException {
         final Map<String, String> parameters = Map.of("title", title);
-        final String sql = "SELECT b.id, b.title, b.genre_id, b.authors_set_id FROM BOOK b WHERE UPPER(b.title) LIKE '%'||UPPER(:title)||'%'";
+        final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
+                + " INNER JOIN GENRE g ON g.id = b.GENRE_ID"
+                + " WHERE UPPER(b.title) LIKE '%'||UPPER(:title)||'%'";
 
         final List<Book> bookList;
         try {
@@ -231,15 +234,16 @@ public class BookDaoJdbc implements BookDao{
         @Override
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
             String id = rs.getString("id");
-            String title = rs.getString("title");
-            EntityId genreId = new EntityId(rs.getString("genre_id"));
+            String title = rs.getString("TITLE");
+            String genreId = rs.getString("GENRE_ID");
+            String genreDescription = rs.getString("GENRE_DESCRIPTION");
             String authorsSetId = rs.getString("authors_set_id");
 
             Genre genre;
             List<Author> authorList;
 
             try {
-                genre = genreDao.getById(genreId);
+                genre = new Genre(genreId, genreDescription);
             } catch (AppDaoException e) {
                 throw new SQLException(String.format("Не удалось найти Genre по ID: %s. Причина: %s", genreId, e.getCause()), e);
             }
