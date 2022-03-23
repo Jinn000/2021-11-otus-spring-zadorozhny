@@ -35,7 +35,7 @@ public class BookDaoJdbc implements BookDao{
     /**Получение Book по ID
      * @return Объект Book*/
     @Override
-    public Optional<Book> getById(String id) throws AppDaoException {
+    public Optional<Book> getById(String id) {
         final Map<String, String> parameters = Map.of("id", id);
         final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
                 + " INNER JOIN GENRE g ON g.id = b.GENRE_ID"
@@ -57,7 +57,7 @@ public class BookDaoJdbc implements BookDao{
     /**Удаление по ID
      * @return количество удаленных строк*/
     @Override
-    public int deleteById(String id) throws AppDaoException {
+    public int deleteById(String id) {
         final Map<String, String> parameters = Map.of("id", id);
 
         // удаление всех authorSet для удаляемых книг (они более нигде не задействованы)
@@ -87,7 +87,7 @@ public class BookDaoJdbc implements BookDao{
     /**Вставка нового обьекта/апдейт существующего.
      * @return количество добавленных строк*/
     @Override
-    public int insert(Book book) throws AppDaoException {
+    public int insert(Book book) {
 
         Optional<String> authorSetByBookId = findAuthorSetIdByBookId(book.getId());
 
@@ -148,7 +148,7 @@ public class BookDaoJdbc implements BookDao{
     /**Получение всего содержимого таблицы*/
     @NotNull
     @Override
-    public List<Book> readAll() throws AppDaoException {
+    public List<Book> readAll() {
         final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
                 + " INNER JOIN GENRE g ON g.id = b.GENRE_ID";
         final List<Book> bookList;
@@ -162,7 +162,7 @@ public class BookDaoJdbc implements BookDao{
 
     /**Очистка таблицы*/
     @Override
-    public void clearAll() throws AppDaoException {
+    public void clearAll() {
         final String sql = "TRUNCATE TABLE BOOK";
         try {
             namedParameterJdbcOperations.update(sql, Map.of());
@@ -172,7 +172,7 @@ public class BookDaoJdbc implements BookDao{
     }
 
     @Override
-    public Optional<String> findAuthorSetIdByBookId(String id) throws AppDaoException {
+    public Optional<String> findAuthorSetIdByBookId(String id) {
         final Map<String, String> parameters = Map.of("id", id);
         final String sql = "SELECT b.authors_set_id FROM BOOK b WHERE b.id = :id";
         final List<String> authorSetIdList;
@@ -196,7 +196,7 @@ public class BookDaoJdbc implements BookDao{
     }
 
     @Override
-    public List<Book> findByGenre(Genre genre) throws AppDaoException {
+    public List<Book> findByGenre(Genre genre) {
         if(genre == null) return new ArrayList<>();
 
         final Map<String, String> parameters = Map.of("genreId", genre.getId());
@@ -212,7 +212,7 @@ public class BookDaoJdbc implements BookDao{
         return bookList;
     }
 
-    public List<Book> findByTitle(String title) throws AppDaoException {
+    public List<Book> findByTitle(String title) {
         final Map<String, String> parameters = Map.of("title", title);
         final String sql = "SELECT b.id, b.TITLE, g.id GENRE_ID, g.DESCRIPTION GENRE_DESCRIPTION, b.AUTHORS_SET_ID FROM BOOK b"
                 + " INNER JOIN GENRE g ON g.id = b.GENRE_ID"
