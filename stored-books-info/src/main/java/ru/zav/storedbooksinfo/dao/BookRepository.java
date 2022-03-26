@@ -5,14 +5,14 @@ import ru.zav.storedbooksinfo.domain.Genre;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface BookDao {
+public interface BookRepository {
     Optional<Book> getById(String id);
     int deleteById(String id);
-    int insert(Book book);
+    Book save(Book book);
     List<Book> readAll();
     void clearAll();
-    Optional<String> findAuthorSetIdByBookId(String id);
     List<Book> findByGenre(Genre genre);
     List<Book> findByTitle(String title);
 }

@@ -5,6 +5,7 @@ import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface BookService {
     Book add(BookBean bookBean) throws AppServiceException;

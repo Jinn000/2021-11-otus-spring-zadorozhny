@@ -1,28 +1,45 @@
 package ru.zav.storedbooksinfo.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import ru.zav.storedbooksinfo.utils.AppDomainException;
-import ru.zav.storedbooksinfo.utils.UuidGeneratorNoDashes;
 
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Getter @Setter
+@Data
+@Entity
+@Table(name = "BOOK")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
+
+    @Column(name = "TITLE", length = 256)
     private String title;
-    private Genre genre;
+
+    @OneToOne(targetEntity = Genre.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "GENRE_ID")
+    private Genre genre = null;
+
+    @ManyToMany(targetEntity = Author.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "BOOK_AUTHOR"
+            , joinColumns = @JoinColumn(name = "BOOK_ID")
+            , inverseJoinColumns = @JoinColumn(name = "AUTHOR_ID")
+    )
     private List<Author> authors;
 
-    public static Book generateBook(String title, Genre genre, @NotNull List<Author> authors) throws AppDomainException {
+    public static Book generateBook(String title, Genre genre, List<Author> authors) throws AppDomainException {
         final Book book = new Book();
         try {
-            book.setId(new UuidGeneratorNoDashes().generateUuid());
+            book.setId(UUID.randomUUID().toString());
             book.setTitle(title);
             book.setGenre(genre);
             book.setAuthors(authors);

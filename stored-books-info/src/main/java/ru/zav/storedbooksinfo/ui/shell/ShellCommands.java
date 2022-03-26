@@ -20,6 +20,7 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @ShellComponent
 @RequiredArgsConstructor

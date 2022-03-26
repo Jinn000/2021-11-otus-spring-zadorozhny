@@ -5,22 +5,16 @@ spring:
     init:
       mode: always
       data-locations: test-data.sql
-      schema-locations: schema.sql
 
   jpa:
     generate-ddl: false
     hibernate:
       ddl-auto: none
-    show-sql: false
-
-    properties:
-      hibernate:
-        format_sql: true
-
+    show-sql: true
 
   shell:
     interactive:
-      enabled: true
+      enabled: false
 
   main:
     allow-circular-references: true
