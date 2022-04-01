@@ -9,9 +9,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,10 @@ class BookRepositoryJpaTest {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList);
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+
+        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
 
         final Optional<Book> actualBookOpt = bookRepository.getById(EXISTED_BOOK_ID);
 
@@ -64,7 +69,9 @@ class BookRepositoryJpaTest {
     void shouldCorrectInsert() throws AppDaoException {
         final Genre genre = new Genre(null,"Мистика");
         final List<Author> authorList = List.of(new Author(null,"Николай", "Васильевич", "Гоголь"));
-        Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList);
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+        Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
         em.detach(expectedBook);
 
         expectedBook = bookRepository.save(expectedBook);
@@ -83,7 +90,10 @@ class BookRepositoryJpaTest {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList);
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+
+        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
         final Optional<Book> bookOpt = bookList.stream().filter(a -> a.getId().equals(EXISTED_BOOK_ID)).findFirst();
 
         assertThat(bookOpt.isPresent()).isTrue();

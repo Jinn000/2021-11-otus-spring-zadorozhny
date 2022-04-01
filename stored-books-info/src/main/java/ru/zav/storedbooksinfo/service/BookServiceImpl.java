@@ -31,7 +31,7 @@ public class BookServiceImpl implements BookService {
             final Optional<Genre> genreOptional = genreRepository.findByDescription(bookBean.getGenreTitle());
             final Genre genre = genreOptional.orElse(genreService.add(bookBean.getGenreTitle()));
 
-            return bookRepository.save(new Book(UUID.randomUUID().toString(), bookBean.getTitle(), genre, bookBean.getAuthors()));
+            return bookRepository.save(new Book(UUID.randomUUID().toString(), bookBean.getTitle(), genre, bookBean.getAuthors(), bookBean.getComments()));
         } catch (AppDaoException e) {
             throw new AppServiceException(String.format("Не удалось добавить книгу %s. Причина: %s", bookBean.toString(), e.getLocalizedMessage()), e);
         }

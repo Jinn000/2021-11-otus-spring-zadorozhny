@@ -14,9 +14,11 @@ import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +49,10 @@ class BookServiceTest {
     private void beforeEach(){
         final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        setExpectedBook(new Book(EXISTED_BOOK_ID, EXISTED_BOOK_TITLE, existedGenre, existedAuthorList));
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+
+        setExpectedBook(new Book(EXISTED_BOOK_ID, EXISTED_BOOK_TITLE, existedGenre, existedAuthorList, existBookComments));
     }
 
 
@@ -58,11 +63,14 @@ class BookServiceTest {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
         final Author existAuthor = new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "Васильевич", "Гоголь");
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
 
         BookBean bookBean = BookBean.builder()
                 .title(newTitle)
                 .genreTitle(newGenreTitle)
                 .authors(List.of(existAuthor))
+                .comments(existBookComments)
                 .build();
         final Book createdBook = bookService.add(bookBean);
         assertThat(createdBook).isNotNull();

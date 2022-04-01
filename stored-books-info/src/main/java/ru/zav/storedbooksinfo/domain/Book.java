@@ -36,13 +36,17 @@ public class Book {
     )
     private List<Author> authors;
 
-    public static Book generateBook(String title, Genre genre, List<Author> authors) throws AppDomainException {
+    @OneToMany(mappedBy="bookId")
+    private List<BookComment> comments;
+
+    public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) throws AppDomainException {
         final Book book = new Book();
         try {
             book.setId(UUID.randomUUID().toString());
             book.setTitle(title);
             book.setGenre(genre);
             book.setAuthors(authors);
+            book.setComments(comments);
         } catch (Exception e) {
             throw new AppDomainException(String.format("не удалось сгенерить объект Book. Причина: %s", e.getCause()), e);
         }
