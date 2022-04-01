@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +36,7 @@ class BookRepositoryJpaTest {
 
 
     @DisplayName("Проверка получения Книги по ID.")
+    @Transactional
     @Test
     void shouldCorrectGetById() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -51,6 +54,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка удаления Книги по ID.")
+    @Transactional
     @Test
     void shouldCorrectDeleteById() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -65,13 +69,12 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка способности добавлять Книги.")
+    @Transactional
     @Test
     void shouldCorrectInsert() throws AppDaoException {
         final Genre genre = new Genre(null,"Мистика");
         final List<Author> authorList = List.of(new Author(null,"Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
-        Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
+        Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList, new ArrayList<>());
         em.detach(expectedBook);
 
         expectedBook = bookRepository.save(expectedBook);
@@ -82,6 +85,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения всех Книг.")
+    @Transactional
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Book> bookList = bookRepository.readAll();
@@ -101,6 +105,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения Книг по жанрам.")
+    @Transactional
     @Test
     void shouldCorrectFindByGenre() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -119,6 +124,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения Книг по названию.")
+    @Transactional
     @Test
     void shouldCorrectFindByTitle() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'

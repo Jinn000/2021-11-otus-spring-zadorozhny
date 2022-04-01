@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
@@ -33,6 +34,7 @@ class AuthorRepositoryJpaTest {
 
 
     @DisplayName("Проверка получения Автора по ID")
+    @Transactional
     @Test
     void shouldCorrectGetById() throws AppDaoException {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
@@ -42,6 +44,7 @@ class AuthorRepositoryJpaTest {
     }
 
     @DisplayName("Проверка удаления Автора по ID")
+    @Transactional
     @Test
     void shouldCorrectDeleteById() throws AppDaoException {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
@@ -52,6 +55,7 @@ class AuthorRepositoryJpaTest {
     }
 
     @DisplayName("Проверка способности добавлять автора.")
+    @Transactional
     @Test
     void shouldCorrectInsert() throws AppDaoException {
         Author expectedAuthor = new Author(null,"Николай", "Николаевич", "Николаев");
@@ -61,6 +65,7 @@ class AuthorRepositoryJpaTest {
     }
 
     @DisplayName("Проверка способности изменить данные Автора.")
+    @Transactional
     @Test
     void shouldCorrectUpdate() throws AppDaoException {
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Моголь");
@@ -70,6 +75,7 @@ class AuthorRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения всех Авторов.")
+    @Transactional
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Author> authorList = authorRepository.readAll();
@@ -102,6 +108,7 @@ class AuthorRepositoryJpaTest {
     }*/
 
     @DisplayName("Проверка получения Автора по ФИО")
+    @Transactional
     @Test
     void shouldCorrectFindByFullName() throws AppDaoException {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'

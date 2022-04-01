@@ -3,10 +3,12 @@ package ru.zav.storedbooksinfo.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.zav.storedbooksinfo.dao.BookCommentRepository;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
@@ -20,8 +22,12 @@ import java.util.UUID;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
+    private final BookCommentRepository bookCommentRepository;
 
     private final GenreService genreService;
+
+    /**Эмуляция залогиненого юзера*/
+    private static final String CURRENT_USER_NAME = "Гость";
 
 
     @Transactional
@@ -39,7 +45,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public int delete(String bookId) throws AppServiceException {
+    public int delete(String bookId) throws AppServiceException{
         try {
             var deletedBooksCountOpt = bookRepository.getById(bookId).map(Book::getId)
                     .map(id -> {
@@ -102,5 +108,33 @@ public class BookServiceImpl implements BookService {
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
+    }
+//-----  Работа с коментами  --------------------------------------------------
+    @Transactional
+    @Override
+    public Optional<Book> addComment(String bookId, String comment) throws AppServiceException {
+        final Optional<Book> optionalBook = bookRepository.getById(bookId);
+        var g =  optionalBook.map(Book::getId)
+                .map(bId-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, bId, comment)));
+
+        return optionalBook.map(Book::getId).flatMap(bookRepository::getById);
+    }
+
+    @Transactional
+    @Override
+    public Optional<Book> deleteComment(String commentId) throws AppServiceException {
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException {
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public List<Book> readComments(String bookId) throws AppServiceException {
+        return null;
     }
 }
