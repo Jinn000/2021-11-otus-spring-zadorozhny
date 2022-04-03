@@ -14,6 +14,7 @@ import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +39,7 @@ class BookServiceImplTest {
     public static final String EXISTED_COMMENT = "Not bad.";
     public static final String EXISTED_NAME = "Николай";
     public static final String NEW_COMMENT = "New test comment.";
+    public static final String EXISTED_BOOK_TITLE = "Вечера на хуторе близ диканьки";
 
 
     @BeforeEach
@@ -59,5 +61,39 @@ class BookServiceImplTest {
         assertThat(bookCommentOpt.isPresent()).isTrue();
 
         assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedBookComment);
+    }
+
+    @Test
+    @Transactional
+    void deleteComment() throws AppServiceException {
+        final Optional<Book> optionalBook = bookService.deleteComment(EXISTED_COMMENT_ID_NIKOLAY);
+
+        final List<Book> bookList = bookService.findByTitle(EXISTED_BOOK_TITLE);
+        assertThat(bookList.isEmpty()).isFalse();
+
+        final List<BookComment> bookComments = bookList.get(0).getComments();
+        assertThat(bookComments.size()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    void updateComment() throws AppServiceException {
+        final String newCommentText = "newCommentText";
+        final Optional<Book> bookOptional = bookService.updateComment(EXISTED_COMMENT_ID_NIKOLAY, newCommentText);
+
+        final List<Book> bookList = bookService.findByTitle(EXISTED_BOOK_TITLE);
+        assertThat(bookList.isEmpty()).isFalse();
+
+        final List<BookComment> bookComments = bookList.get(0).getComments();
+        assertThat(bookComments.size()).isEqualTo(2);
+        assertThat(bookComments.get(0).getComment()).isEqualTo(newCommentText);
+    }
+
+    @Test
+    @Transactional
+    void readComments() throws AppServiceException {
+        final List<BookComment> commentList = bookService.readComments(EXISTED_BOOK_ID);
+        assertThat(commentList.size()).isEqualTo(2);
+        assertThat(commentList.get(0)).isEqualTo(this.existedBookComment);
     }
 }

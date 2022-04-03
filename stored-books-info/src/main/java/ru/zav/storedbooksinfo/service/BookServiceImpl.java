@@ -16,6 +16,7 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -123,18 +124,34 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Optional<Book> deleteComment(String commentId) throws AppServiceException {
-        return null;
+
+        var bookIdOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
+                .map(BookComment::getBookId)
+                .flatMap(bookRepository::getById);
+
+        try {
+            bookCommentRepository.deleteById(commentId);
+        } catch (Exception e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
+        return bookIdOpt;
     }
 
     @Transactional
     @Override
     public Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException {
-        return null;
+        final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
+
+        return bookCommentOptional.stream()
+                .peek(c-> c.setComment(newComment)).findFirst()
+                .map(bookCommentRepository::save)
+                .map(BookComment::getBookId)
+                .flatMap(bookRepository::getById);
     }
 
     @Transactional
     @Override
-    public List<Book> readComments(String bookId) throws AppServiceException {
-        return null;
+    public List<BookComment> readComments(String bookId) throws AppServiceException {
+        return bookRepository.getById(bookId).map(Book::getComments).orElse(null);
     }
 }
