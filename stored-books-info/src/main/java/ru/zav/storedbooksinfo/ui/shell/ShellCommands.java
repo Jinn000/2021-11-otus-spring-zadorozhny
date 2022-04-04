@@ -5,10 +5,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.service.AuthorService;
 import ru.zav.storedbooksinfo.service.BookService;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -40,6 +43,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "false")
     @ShellMethod(key = {"genre-add-param", "gap"}, value = "Добавление жанра (с параметром)")
+    @Transactional
     @Override
     public void genreAdd(String description){
         Genre newGenre = null;
@@ -59,6 +63,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethod(key = {"genre-add", "ga"}, value = "Добавление жанра")
     @ShellMethodAvailability(value = "true")
+    @Transactional
     @Override
     public void genreAdd() {
         final String newGenre = layoutService.ask("Введите жанр.");
@@ -67,6 +72,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethod(key = {"genre-delete", "gd"}, value = "Удаление жанра")
     @ShellMethodAvailability(value = "true")
+    @Transactional
     @Override
     public void genreDelete(){
         layoutService.show("Удаление жанра.");
@@ -82,6 +88,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"genres","gs"}, value = "Просмотр списка жанров")
+    @Transactional
     @Override
     public void showGenres() {
         final List<Genre> genreList;
@@ -111,6 +118,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"author-add", "aa"}, value = "Добавление автора")
+    @Transactional
     @Override
     public void authorAdd() {
         layoutService.show("Добавление нового автора.");
@@ -134,6 +142,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"authors", "as"}, value = "Показать всех авторов")
+    @Transactional
     @Override
     public void showAuthors() {
         final List<Author> authorList;
@@ -162,6 +171,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethod(key = {"book-add", "ba"}, value = "Добавить книгу")
     @ShellMethodAvailability(value = "true")
+    @Transactional
     @Override
     public void bookAdd() {
         layoutService.show("Добавление книги.");
@@ -249,6 +259,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"book-delete", "bd"}, value = "Удаление книги")
+    @Transactional
     @Override
     public void bookDelete() {
         layoutService.show("Удаление книги.");
@@ -296,6 +307,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"book-rename", "br"}, value = "Переименование книги")
+    @Transactional
     @Override
     public void bookRename() {
         layoutService.show("Переименование книги.");
@@ -355,6 +367,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"book-show", "bs"}, value = "Показать все книги")
+    @Transactional
     @Override
     public void showBooks() {
         final List<Book> bookList;
@@ -412,4 +425,69 @@ public class ShellCommands implements BooksInfoUi {
         return answer;
     }
     //------------------------------
+    //--- Комментарии --------------
+    @ShellMethodAvailability(value = "true")
+    @ShellMethod(key = {"comments-add", "ca"}, value = "Добавление комментария")
+    @Transactional
+    @Override
+    public void bookCommentAdd() {
+        final List<Book> bookList;
+        try {
+            bookList = bookService.getAll();
+        } catch (AppServiceException e) {
+            layoutService.show(String.format(CANT_SHOW_BOOKS_S, e.getCause()));
+            return;
+        }
+
+        if(bookList.isEmpty()){
+            layoutService.show("Нет ни одной книги. Нечего комментировать.");
+        }else{
+            layoutService.show("Можно добавить комментарий в одну из книг: ");
+            int[] counter = {0};
+            bookList.stream()
+                    .map(book -> {
+                        counter[0]++;
+                        return String.format("%d. %s. [%s]", counter[0], book.getTitle(), book.getGenre().getDescription());
+                    })
+                    .forEach(layoutService::show);
+
+            final int itemToComment = askItemNumberToAction(counter[0]);
+
+            if(itemToComment == 0) {
+                layoutService.show(ACTION_CANCELLED);
+            }else {
+                final String bookToCommentId = bookList.get(itemToComment - 1).getId();
+                String newComment = "";
+                try {
+                    newComment = layoutService.ask("Введите комментарий. Или 0 для отмены.");
+
+                    // Возможность отмены
+                    boolean isCancel = false;
+                    try {
+                        isCancel = Integer.parseInt(newComment) == 0;
+                    }
+                    catch (NumberFormatException ignored) {
+                    }
+
+                    if(isCancel){
+                        layoutService.show(ACTION_CANCELLED);
+                        return;
+                    }
+
+                    final Optional<Book> optionalBook = bookService.addComment(bookToCommentId, newComment);
+                    layoutService.show("Комментарий добавлен: ");
+                    final List<String> comments = optionalBook.map(Book::getComments)
+                            .map(l -> l.stream()
+                                    .map(BookComment::getComment)
+                                    .peek(layoutService::show)
+                                    .collect(Collectors.toList()))
+                            .orElse(new ArrayList<>());
+
+                } catch (AppServiceException e) {
+                    layoutService.show(String.format("Не удалось добавить комментарий %s. Причина: %s", newComment, e.getCause()));
+                }
+            }
+
+        }
+    }
 }

@@ -13,4 +13,6 @@ public interface BooksInfoUi {
     void bookDelete();
     void bookRename();
     void showBooks();
+
+    void bookCommentAdd();
 }
