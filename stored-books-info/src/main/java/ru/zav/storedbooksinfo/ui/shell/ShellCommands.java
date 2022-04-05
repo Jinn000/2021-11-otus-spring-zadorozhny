@@ -88,7 +88,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"genres","gs"}, value = "Просмотр списка жанров")
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public void showGenres() {
         final List<Genre> genreList;
@@ -142,7 +142,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"authors", "as"}, value = "Показать всех авторов")
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public void showAuthors() {
         final List<Author> authorList;
@@ -367,7 +367,7 @@ public class ShellCommands implements BooksInfoUi {
 
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"book-show", "bs"}, value = "Показать все книги")
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public void showBooks() {
         final List<Book> bookList;

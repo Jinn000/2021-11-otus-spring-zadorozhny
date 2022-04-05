@@ -36,7 +36,7 @@ class BookRepositoryJpaTest {
 
 
     @DisplayName("Проверка получения Книги по ID.")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectGetById() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -85,7 +85,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения всех Книг.")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Book> bookList = bookRepository.readAll();
@@ -105,7 +105,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения Книг по жанрам.")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectFindByGenre() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
@@ -124,7 +124,7 @@ class BookRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения Книг по названию.")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectFindByTitle() throws AppDaoException {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'

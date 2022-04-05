@@ -27,7 +27,7 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     /**Получение BookComment по ID
      * @return Объект BookComment*/
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BookComment getById(String id) {
         BookComment bookComment;
         try {
@@ -68,7 +68,7 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
         }
     }
     /**Получение всего содержимого таблицы*/
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<BookComment> readAll() {
         try {
@@ -90,7 +90,7 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     }
 
     /**Поиск комментариев к книге, по ее ID*/
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<BookComment> findByBookId(String bookId) {
         if(bookId == null) throw new AppDaoException("Ошибка! Не указан bookId для поиска.");

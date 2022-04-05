@@ -3,6 +3,7 @@ package ru.zav.storedbooksinfo.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.dao.datatypes.EntityId;
@@ -19,6 +20,7 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
 
+    @Transactional
     @Override
     public Genre add(String genreDescription) throws AppServiceException{
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для добавляемого жанра.");
@@ -31,6 +33,7 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
+    @Transactional
     @Override
     public int delete(String genreDescription) throws AppServiceException {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для удаляемого жанра.");
@@ -67,6 +70,7 @@ public class GenreServiceImpl implements GenreService {
         return deletedCount;
     }
 
+    @Transactional
     @Override
     public Genre rename(String oldDescription, String newDescription) throws AppServiceException {
         if(StringUtils.isBlank(oldDescription) || StringUtils.isBlank(newDescription)) throw new AppServiceException("Ошибка! Не указан Description для переименования жанра.");
@@ -96,6 +100,7 @@ public class GenreServiceImpl implements GenreService {
         return updatedGenre;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Genre> getAll() throws AppServiceException {
         try {
@@ -105,6 +110,7 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Genre> findByDescription(String description) throws AppServiceException {
         try {

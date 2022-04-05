@@ -3,6 +3,7 @@ package ru.zav.storedbooksinfo.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.AuthorRepository;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
+    @Transactional
     @Override
     public Author add(FullName fullName) throws AppServiceException {
         try {
@@ -27,6 +29,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    @Transactional
     @Override
     public void delete(FullName fullName) throws AppServiceException {
         if(StringUtils.isBlank(fullName.getFirstName())) throw new AppServiceException("Ошибка! Не указано Имя автора.");
@@ -51,6 +54,7 @@ public class AuthorServiceImpl implements AuthorService {
                 });
     }
 
+    @Transactional
     @Override
     public Author rename(FullName oldName, FullName newName) throws AppServiceException {
         final Optional<Author> authorOptional;
@@ -80,6 +84,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Author> getAll() throws AppServiceException {
         final List<Author> authorList;
@@ -91,6 +96,7 @@ public class AuthorServiceImpl implements AuthorService {
         return authorList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Author> findByFullName(FullName fullName) throws AppServiceException {
         try {

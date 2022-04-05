@@ -12,7 +12,6 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
 @Repository
 public class GenreRepositoryJpa implements GenreRepository {
     @PersistenceContext
@@ -25,6 +24,7 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Получение Genre по ID
      * @return Объект Genre*/
+    @Transactional(readOnly = true)
     @Override
     public Genre getById(EntityId id) {
         try {
@@ -38,6 +38,7 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Удаление по ID
      * @return количество удаленных строк*/
+    @Transactional
     @Override
     public int deleteById(EntityId id) {
         try {
@@ -51,6 +52,7 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Сохранение обьекта.
      * @return сохраненный объект Жанр*/
+    @Transactional
     @Override
     public Genre save(Genre genre) {
         if(genre.getId() == null){
@@ -62,6 +64,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     /**Получение всего содержимого таблицы*/
+    @Transactional(readOnly = true)
     @Override
     public List<Genre> readAll() {
         try {
@@ -72,6 +75,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     /**Очистка таблицы*/
+    @Transactional
     @Override
     public void clearAll() {
         try {
@@ -82,6 +86,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Genre> findByDescription(String description) {
         if(description == null) throw new AppDaoException("Ошибка! Не указан Description жанра для поиска.");
 

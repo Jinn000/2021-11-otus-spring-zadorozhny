@@ -89,7 +89,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<Book> getAll() throws AppServiceException {
         try {
@@ -99,7 +99,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<Book> findByTitle(String title) throws AppServiceException {
         if(title == null) throw new AppServiceException("Ошибка! Не указано наименование книги для поиска.");
@@ -149,7 +149,7 @@ public class BookServiceImpl implements BookService {
                 .flatMap(bookRepository::getById);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<BookComment> readComments(String bookId) throws AppServiceException {
         return bookRepository.getById(bookId).map(Book::getComments).orElse(null);

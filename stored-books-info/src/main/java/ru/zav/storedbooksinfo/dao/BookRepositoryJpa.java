@@ -28,7 +28,7 @@ public class BookRepositoryJpa implements BookRepository {
 
     /**Получение Book по ID
      * @return Объект Book*/
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Optional<Book> getById(String id) {
         try {
@@ -72,7 +72,7 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     /**Получение всего содержимого таблицы*/
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<Book> readAll() {
         try {
@@ -107,7 +107,7 @@ public class BookRepositoryJpa implements BookRepository {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<Book> findByTitle(String title) {
         try {

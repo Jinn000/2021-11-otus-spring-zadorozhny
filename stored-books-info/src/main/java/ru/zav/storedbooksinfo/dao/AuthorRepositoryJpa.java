@@ -14,7 +14,7 @@ import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+
 @Repository
 public class AuthorRepositoryJpa implements AuthorRepository {
 
@@ -28,6 +28,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Получение Author по ID
      * @return Объект Author*/
+    @Transactional(readOnly = true)
     @Override
     public Author getById(String id) {
         Author author;
@@ -43,6 +44,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Удаление по ID
      * @return количество удаленных строк*/
+    @Transactional
     @Override
     public int deleteById(String id) {
         final Query query = em.createQuery("DELETE FROM Author a WHERE a.id = :id");
@@ -57,6 +59,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Сохранение обьекта.
      * @return обновленный обьект*/
+    @Transactional
     @Override
     public Author save(Author author){
         if(author.getId() == null){
@@ -67,6 +70,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
         }
     }
     /**Получение всего содержимого таблицы*/
+    @Transactional(readOnly = true)
     @Override
     public List<Author> readAll() {
         try {
@@ -77,6 +81,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     /**Очистка таблицы*/
+    @Transactional
     @Override
     public void clearAll() {
         try {
@@ -87,6 +92,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Author> findByFullName(FullName fullName) {
         if(fullName == null) throw new AppDaoException("Ошибка! Не указан имя для поиска.");
 

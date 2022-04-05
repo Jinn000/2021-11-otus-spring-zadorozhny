@@ -34,7 +34,7 @@ class AuthorRepositoryJpaTest {
 
 
     @DisplayName("Проверка получения Автора по ID")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectGetById() throws AppDaoException {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
@@ -75,7 +75,7 @@ class AuthorRepositoryJpaTest {
     }
 
     @DisplayName("Проверка получения всех Авторов.")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Author> authorList = authorRepository.readAll();
@@ -108,7 +108,7 @@ class AuthorRepositoryJpaTest {
     }*/
 
     @DisplayName("Проверка получения Автора по ФИО")
-    @Transactional
+    @Transactional(readOnly = true)
     @Test
     void shouldCorrectFindByFullName() throws AppDaoException {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'

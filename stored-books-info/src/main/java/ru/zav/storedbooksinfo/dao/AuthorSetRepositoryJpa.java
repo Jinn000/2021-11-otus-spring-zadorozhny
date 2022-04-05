@@ -12,7 +12,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-@Transactional
 @Repository
 public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
@@ -26,6 +25,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Получение AuthorSet по ID
      * @return Объект AuthorSet*/
+    @Transactional(readOnly = true)
     @Override
     public AuthorSet getById(String id) {
         try {
@@ -38,6 +38,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
     }
     /**Получение коллекции AuthorSet по ID автора
      * @return Объект AuthorSet*/
+    @Transactional(readOnly = true)
     @Override
     public List<AuthorSet> findByAuthorId(String authorId) {
         try {
@@ -52,6 +53,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Получение коллекции AuthorSet по ID автора
      * @return Объект AuthorSet*/
+    @Transactional(readOnly = true)
     @Override
     public List<AuthorSet> findByAuthorsSetId(String authorsSetId) {
         try {
@@ -66,6 +68,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Удаление по ID
      * @return количество удаленных строк*/
+    @Transactional
     @Override
     public int deleteById(String id) {
         try {
@@ -77,6 +80,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Сохранение обьекта.
      * @return объект AuthorSet*/
+    @Transactional
     @Override
     public AuthorSet save(AuthorSet authorSet) {
         if(authorSet.getAuthorsSetId() == null){
@@ -98,6 +102,7 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
     }
 
     /**Очистка таблицы*/
+    @Transactional
     @Override
     public void clearAll() {
         try {
