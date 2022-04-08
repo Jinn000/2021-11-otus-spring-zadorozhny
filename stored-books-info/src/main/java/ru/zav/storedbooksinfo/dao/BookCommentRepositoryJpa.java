@@ -27,7 +27,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     /**Получение BookComment по ID
      * @return Объект BookComment*/
     @Override
-    @Transactional(readOnly = true)
     public BookComment getById(String id) {
         BookComment bookComment;
         try {
@@ -45,11 +44,9 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     @Transactional
     @Override
     public int deleteById(String id) {
-        final Query query = em.createQuery("DELETE FROM BookComment b WHERE b.id = :id");
-        query.setParameter("id", id);
-
         try {
-            return query.executeUpdate();
+            em.remove(getById(id));
+            return 1;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
@@ -68,7 +65,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
         }
     }
     /**Получение всего содержимого таблицы*/
-    @Transactional(readOnly = true)
     @Override
     public List<BookComment> readAll() {
         try {
@@ -90,7 +86,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     }
 
     /**Поиск комментариев к книге, по ее ID*/
-    @Transactional(readOnly = true)
     @Override
     public List<BookComment> findByBookId(String bookId) {
         if(bookId == null) throw new AppDaoException("Ошибка! Не указан bookId для поиска.");

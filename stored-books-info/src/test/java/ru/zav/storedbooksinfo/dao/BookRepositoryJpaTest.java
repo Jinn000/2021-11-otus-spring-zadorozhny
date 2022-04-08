@@ -62,7 +62,6 @@ class BookRepositoryJpaTest {
         assertThat(deletedBookOpt.isPresent()).isTrue();
 
         deletedBookOpt.map(Book::getId).map(bookRepository::deleteById);
-        em.clear();
 
         final Optional<Book> actualBookOpt = deletedBookOpt.map(Book::getId).flatMap(bookRepository::getById);
         assertThat(actualBookOpt.isPresent()).isFalse();

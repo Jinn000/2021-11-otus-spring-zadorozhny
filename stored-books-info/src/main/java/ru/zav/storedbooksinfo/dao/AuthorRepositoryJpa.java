@@ -28,7 +28,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Получение Author по ID
      * @return Объект Author*/
-    @Transactional(readOnly = true)
     @Override
     public Author getById(String id) {
         Author author;
@@ -47,11 +46,10 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     @Transactional
     @Override
     public int deleteById(String id) {
-        final Query query = em.createQuery("DELETE FROM Author a WHERE a.id = :id");
-        query.setParameter("id", id);
-
         try {
-            return query.executeUpdate();
+            final Author author = getById(id);
+            em.remove(author);
+            return 1;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
@@ -70,7 +68,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
         }
     }
     /**Получение всего содержимого таблицы*/
-    @Transactional(readOnly = true)
     @Override
     public List<Author> readAll() {
         try {
@@ -92,7 +89,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Author> findByFullName(FullName fullName) {
         if(fullName == null) throw new AppDaoException("Ошибка! Не указан имя для поиска.");
 

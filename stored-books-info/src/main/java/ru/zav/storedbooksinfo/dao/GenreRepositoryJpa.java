@@ -24,7 +24,6 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Получение Genre по ID
      * @return Объект Genre*/
-    @Transactional(readOnly = true)
     @Override
     public Genre getById(EntityId id) {
         try {
@@ -42,9 +41,8 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Override
     public int deleteById(EntityId id) {
         try {
-            final Query query = em.createQuery("DELETE FROM Genre g WHERE g.id = :id");
-            query.setParameter("id", id.getIdValue());
-            return query.executeUpdate();
+            em.remove(getById(id));
+            return 1;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
@@ -64,7 +62,6 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     /**Получение всего содержимого таблицы*/
-    @Transactional(readOnly = true)
     @Override
     public List<Genre> readAll() {
         try {
@@ -86,7 +83,6 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Genre> findByDescription(String description) {
         if(description == null) throw new AppDaoException("Ошибка! Не указан Description жанра для поиска.");
 

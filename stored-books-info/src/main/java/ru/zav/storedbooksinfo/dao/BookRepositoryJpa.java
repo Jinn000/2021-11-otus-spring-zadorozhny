@@ -28,7 +28,6 @@ public class BookRepositoryJpa implements BookRepository {
 
     /**Получение Book по ID
      * @return Объект Book*/
-    @Transactional(readOnly = true)
     @Override
     public Optional<Book> getById(String id) {
         try {
@@ -48,11 +47,13 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public int deleteById(String id) {
         try {
-            final int deleted = em.createQuery("DELETE FROM Book b WHERE b.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            em.clear();
-            return deleted;
+            final Optional<Book> optionalBook = getById(id);
+            if(optionalBook.isPresent()) {
+                em.remove(optionalBook.get());
+                return 1;
+            }else{
+                return 0;
+            }
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
@@ -72,7 +73,6 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     /**Получение всего содержимого таблицы*/
-    @Transactional(readOnly = true)
     @Override
     public List<Book> readAll() {
         try {
@@ -107,7 +107,6 @@ public class BookRepositoryJpa implements BookRepository {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> findByTitle(String title) {
         try {

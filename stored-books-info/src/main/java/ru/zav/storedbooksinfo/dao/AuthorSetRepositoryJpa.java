@@ -25,7 +25,6 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Получение AuthorSet по ID
      * @return Объект AuthorSet*/
-    @Transactional(readOnly = true)
     @Override
     public AuthorSet getById(String id) {
         try {
@@ -38,7 +37,6 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
     }
     /**Получение коллекции AuthorSet по ID автора
      * @return Объект AuthorSet*/
-    @Transactional(readOnly = true)
     @Override
     public List<AuthorSet> findByAuthorId(String authorId) {
         try {
@@ -53,7 +51,6 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
 
     /**Получение коллекции AuthorSet по ID автора
      * @return Объект AuthorSet*/
-    @Transactional(readOnly = true)
     @Override
     public List<AuthorSet> findByAuthorsSetId(String authorsSetId) {
         try {
@@ -72,7 +69,8 @@ public class AuthorSetRepositoryJpa implements AuthorSetRepository {
     @Override
     public int deleteById(String id) {
         try {
-            return em.createQuery("DELETE FROM AuthorSet a WHERE a.id = :id").setParameter("id", id).executeUpdate();
+            em.remove(getById(id));
+            return 1;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
         }
