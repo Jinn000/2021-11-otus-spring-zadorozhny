@@ -28,7 +28,7 @@ public class Book {
     @JoinColumn(name = "GENRE_ID")
     private Genre genre = null;
 
-    @ManyToMany(targetEntity = Author.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(targetEntity = Author.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "BOOK_AUTHOR"
             , joinColumns = @JoinColumn(name = "BOOK_ID")

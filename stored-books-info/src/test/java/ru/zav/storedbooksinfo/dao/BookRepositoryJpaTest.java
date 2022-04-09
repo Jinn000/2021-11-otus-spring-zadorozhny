@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @DisplayName("Проверка DAO работы с Книгами:")
 @DataJpaTest
-@Import({BookRepositoryJpa.class, GenreRepositoryJpa.class, AuthorSetRepositoryJpa.class, AuthorRepositoryJpa.class})
+@Import({BookRepositoryJpa.class, GenreRepositoryJpa.class, AuthorRepositoryJpa.class})
 class BookRepositoryJpaTest {
     public static final String EXISTED_BOOK_ID = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
     public static final String FAKE_EXISTED_BOOK_ID = "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10_FAKE";
