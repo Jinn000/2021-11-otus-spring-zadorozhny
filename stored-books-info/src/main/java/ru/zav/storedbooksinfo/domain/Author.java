@@ -1,10 +1,13 @@
 package ru.zav.storedbooksinfo.domain;
 
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -28,6 +31,9 @@ public class Author {
 
     @Override
     public String toString() {
-        return String.format("%s %s %s", firstName, lastName, familyName);
+        List<String> fullNameList = List.of(getFirstName(), getLastName(), getFamilyName()).stream()
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+        return String.format("%s", String.join(" ", fullNameList));
     }
 }

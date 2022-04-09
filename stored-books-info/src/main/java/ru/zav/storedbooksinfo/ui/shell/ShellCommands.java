@@ -19,10 +19,7 @@ import ru.zav.storedbooksinfo.service.GenreService;
 import ru.zav.storedbooksinfo.ui.LayoutService;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ShellComponent
@@ -161,7 +158,7 @@ public class ShellCommands implements BooksInfoUi {
             authorList.stream()
                     .map(author -> {
                         counter[0]++;
-                        return String.format("%d. %s %s %s", counter[0], author.getFirstName(), author.getLastName(), author.getFamilyName());
+                        return String.format("%d. %s", counter[0], author.toString());
                     })
                     .forEach(layoutService::show);
         }
@@ -386,7 +383,7 @@ public class ShellCommands implements BooksInfoUi {
             bookList.stream()
                     .map(book -> {
                         counter[0]++;
-                        return String.format("%d. %s. [%s]", counter[0], book.getTitle(), book.getGenre().getDescription());
+                        return String.format("%d. %s. [%s] <%s>", counter[0], book.getTitle(), book.getGenre().getDescription(), book.getAuthorsString());
                     })
                     .forEach(layoutService::show);
 

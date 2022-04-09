@@ -3,12 +3,14 @@ package ru.zav.storedbooksinfo.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import ru.zav.storedbooksinfo.utils.AppDomainException;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -52,5 +54,13 @@ public class Book {
         }
 
         return book;
+    }
+
+    public String getAuthorsString(){
+        final List<String> authorsFullNames = authors.stream()
+                .map(Author::toString)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+        return String.join(", ", authorsFullNames);
     }
 }
