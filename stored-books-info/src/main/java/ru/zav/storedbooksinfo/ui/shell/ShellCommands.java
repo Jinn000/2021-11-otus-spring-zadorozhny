@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.datatypes.FullName;
@@ -12,10 +13,7 @@ import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
-import ru.zav.storedbooksinfo.service.AuthorService;
-import ru.zav.storedbooksinfo.service.BookService;
-import ru.zav.storedbooksinfo.service.BooksInfoUi;
-import ru.zav.storedbooksinfo.service.GenreService;
+import ru.zav.storedbooksinfo.service.*;
 import ru.zav.storedbooksinfo.ui.LayoutService;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
@@ -28,11 +26,12 @@ public class ShellCommands implements BooksInfoUi {
     public static final String CANT_SHOW_GENRES_S = "Не удалось отобразить перечень жанров. Причина: %s";
     public static final String CANT_SHOW_AUTHORS_S = "Не удалось отобразить перечень авторов. Причина: %s";
     public static final String CANT_SHOW_BOOKS_S = "Не удалось отобразить перечень книг. Причина: %s";
-    public static final String ACTION_CANCELLED = "Действие отменено.";
+    public static final String ACTION_CANCELLED = "Действие отменено. \n";
     private final LayoutService<String, String> layoutService;
     private final GenreService genreService;
     private final AuthorService authorService;
     private final BookService bookService;
+    private final BookCommentService bookCommentService;
 
 
     //---------------------------------------------
@@ -387,11 +386,12 @@ public class ShellCommands implements BooksInfoUi {
                     })
                     .forEach(layoutService::show);
 
+            bookCommentsShow();
         }
     }
 
     private int askItemNumberToAction(int itemsCount){
-        final String answer = layoutService.ask(String.format("Выберите пункт для выполнения действия. Введите число от 1 до %d. Для отмены выберите 0", itemsCount));
+        final String answer = layoutService.ask(String.format("Выберите пункт для выполнения действия. Введите число от 1 до %d. Для отмены выберите 0. \n", itemsCount));
 
         int itemNumber;
         try {
@@ -404,7 +404,7 @@ public class ShellCommands implements BooksInfoUi {
         if(itemNumber == 0){
             return 0;
         }else if(itemNumber<1 || itemNumber>itemsCount) {
-            layoutService.show(String.format("Введено не верное число. Введите число от 1 до %d. Для отмены выберите 0", itemsCount));
+            layoutService.show(String.format("Введено не верное число. Введите число от 1 до %d. Для отмены введите 0", itemsCount));
             itemNumber = askItemNumberToAction(itemsCount);
         }
 
@@ -421,8 +421,32 @@ public class ShellCommands implements BooksInfoUi {
         }
         return answer;
     }
-    //------------------------------
-    //--- Комментарии --------------
+//------------------------------
+//--- Комментарии --------------
+    @ShellMethodAvailability(value = "true")
+    @ShellMethod(key = {"comments-show", "cs"}, value = "Просмотр комментариев к книге")
+    @Transactional
+    @Override
+    public void bookCommentsShow(){
+
+        final List<Book> bookList;
+        try {
+            bookList = bookService.getAll();
+        } catch (AppServiceException e) {
+            layoutService.show(String.format(CANT_SHOW_BOOKS_S, e.getCause()));
+            return;
+        }
+
+        if(bookList.isEmpty()){
+            layoutService.show("Нет ни одной книги. Нечего комментировать.");
+            return;
+        }
+
+        layoutService.show("Можно просмотреть комментарий к любой из книг. Выберите номер книги.");
+        selectBookStage(bookList);
+    }
+
+
     @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"comments-add", "ca"}, value = "Добавление комментария")
     @Transactional
@@ -439,8 +463,16 @@ public class ShellCommands implements BooksInfoUi {
         if(bookList.isEmpty()){
             layoutService.show("Нет ни одной книги. Нечего комментировать.");
         }else{
-            layoutService.show("Можно добавить комментарий в одну из книг: ");
-            int[] counter = {0};
+            selectBookStage(bookList);
+        }
+    }
+
+    private void selectBookStage(List<Book> bookList) {
+        int[] counter = {0};
+
+        boolean doSelectBook = true;
+        while (doSelectBook){
+            counter[0] = 0;
             bookList.stream()
                     .map(book -> {
                         counter[0]++;
@@ -448,43 +480,57 @@ public class ShellCommands implements BooksInfoUi {
                     })
                     .forEach(layoutService::show);
 
+            layoutService.show("Можно добавить комментарий в одну из книг.");
+
             final int itemToComment = askItemNumberToAction(counter[0]);
-
             if(itemToComment == 0) {
-                layoutService.show(ACTION_CANCELLED);
+                doSelectBook = false;
             }else {
-                final String bookToCommentId = bookList.get(itemToComment - 1).getId();
-                String newComment = "";
-                try {
-                    newComment = layoutService.ask("Введите комментарий. Или 0 для отмены.");
+                layoutService.show(String.format("Комментарии к книге %s: ", bookList.get(itemToComment - 1).getTitle()));
+                bookList.get(itemToComment - 1).getComments().stream()
+                        .map(BookComment::getComment)
+                        .map(" - "::concat)
+                        .forEach(layoutService::show);
 
-                    // Возможность отмены
-                    boolean isCancel = false;
-                    try {
-                        isCancel = Integer.parseInt(newComment) == 0;
-                    }
-                    catch (NumberFormatException ignored) {
-                    }
-
-                    if(isCancel){
-                        layoutService.show(ACTION_CANCELLED);
-                        return;
-                    }
-
-                    final Optional<Book> optionalBook = bookService.addComment(bookToCommentId, newComment);
-                    layoutService.show("Комментарий добавлен: ");
-                    final List<String> comments = optionalBook.map(Book::getComments)
-                            .map(l -> l.stream()
-                                    .map(BookComment::getComment)
-                                    .peek(layoutService::show)
-                                    .collect(Collectors.toList()))
-                            .orElse(new ArrayList<>());
-
-                } catch (AppServiceException e) {
-                    layoutService.show(String.format("Не удалось добавить комментарий %s. Причина: %s", newComment, e.getCause()));
-                }
+                commentAddStage(bookList, itemToComment);
             }
-
         }
+
+        layoutService.show(ACTION_CANCELLED);
+    }
+
+    private void commentAddStage(List<Book> bookList, int itemToComment) {
+        boolean doCommentAdd = true;
+        while (doCommentAdd){
+
+            final String bookToCommentId = bookList.get(itemToComment - 1).getId();
+            String newComment = "";
+            try {
+                newComment = layoutService.ask("Введите комментарий. Или 0 для отмены.");
+                try {
+                    doCommentAdd = Integer.parseInt(newComment) > 0;
+                    if(!doCommentAdd){
+                        continue;
+                    }
+                }
+                catch (NumberFormatException ignored) {
+                }
+
+                final Optional<Book> optionalBook = bookCommentService.addComment(bookToCommentId, newComment);
+                layoutService.show("Комментарий добавлен.");
+                layoutService.show(String.format("Комментарии к книге %s: ", optionalBook.map(Book::getTitle).orElse(null)));
+                optionalBook.map(Book::getComments).map(c-> {
+                    c.stream()
+                            .map(BookComment::getComment)
+                            .map(" - "::concat)
+                            .forEach(layoutService::show);
+                    return c;
+                });
+            } catch (AppServiceException e) {
+                layoutService.show(String.format("Не удалось добавить комментарий %s. Причина: %s", newComment, e.getCause()));
+            }
+        }
+
+        layoutService.show(ACTION_CANCELLED);
     }
 }

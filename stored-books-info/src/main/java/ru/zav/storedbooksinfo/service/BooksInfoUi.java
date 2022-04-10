@@ -15,4 +15,5 @@ public interface BooksInfoUi {
     void showBooks();
 
     void bookCommentAdd();
+    void bookCommentsShow();
 }

@@ -20,16 +20,18 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@DisplayName("Проверка работы с книгами:")
+@DisplayName("Проверка работы с комментариями:")
 @Slf4j
 @Data
 @RequiredArgsConstructor
-@Import(BookServiceImpl.class)
+@Import({BookServiceImpl.class, BookCommentServiceImpl.class})
 @SpringBootTest
-class BookServiceImplTest {
+class BookCommentServiceImplTest {
 
     @Autowired
     private BookService bookService;
+    @Autowired
+    private BookCommentServiceImpl bookCommentService;
 
     private BookComment existedBookComment;
     private BookComment expectedBookComment;
@@ -50,12 +52,13 @@ class BookServiceImplTest {
         this.expectedBookComment = new BookComment(null, EXISTED_NAME, this.existedBook, NEW_COMMENT);
     }
 
+    @DisplayName("Проверка добавления комментария к книге.")
     @Test
     @Transactional
     void shouldCorrectAddComment() throws AppServiceException {
         final Book book = bookService.findByTitle("Вечера на хуторе близ диканьки").get(0);
 
-        final Optional<Book> actualBookOpt = bookService.addComment(book.getId(), NEW_COMMENT);
+        final Optional<Book> actualBookOpt = bookCommentService.addComment(book.getId(), NEW_COMMENT);
         assertThat(actualBookOpt.isPresent()).isTrue();
         assertThat(actualBookOpt.get().getComments().size()).isEqualTo(3);
 
@@ -65,10 +68,11 @@ class BookServiceImplTest {
         assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedBookComment);
     }
 
+    @DisplayName("Проверка удаления комментария по его ID.")
     @Test
     @Transactional
-    void deleteComment() throws AppServiceException {
-        final Optional<Book> optionalBook = bookService.deleteComment(EXISTED_COMMENT_ID_NIKOLAY);
+    void shouldCorrectDeleteComment() throws AppServiceException {
+        final Optional<Book> optionalBook = bookCommentService.deleteComment(EXISTED_COMMENT_ID_NIKOLAY);
 
         final List<Book> bookList = bookService.findByTitle(EXISTED_BOOK_TITLE);
         assertThat(bookList.isEmpty()).isFalse();
@@ -77,11 +81,12 @@ class BookServiceImplTest {
         assertThat(bookComments.size()).isEqualTo(1);
     }
 
+    @DisplayName("Проверка редактирования комментария к книге.")
     @Test
     @Transactional
-    void updateComment() throws AppServiceException {
+    void shouldCorrectUpdateComment() throws AppServiceException {
         final String newCommentText = "newCommentText";
-        final Optional<Book> bookOptional = bookService.updateComment(EXISTED_COMMENT_ID_NIKOLAY, newCommentText);
+        final Optional<Book> bookOptional = bookCommentService.updateComment(EXISTED_COMMENT_ID_NIKOLAY, newCommentText);
 
         final List<Book> bookList = bookService.findByTitle(EXISTED_BOOK_TITLE);
         assertThat(bookList.isEmpty()).isFalse();
@@ -91,10 +96,11 @@ class BookServiceImplTest {
         assertThat(bookComments.get(0).getComment()).isEqualTo(newCommentText);
     }
 
+    @DisplayName("Проверка получения всех комментариев к книге.")
     @Test
     @Transactional
-    void readComments() throws AppServiceException {
-        final List<BookComment> commentList = bookService.readComments(EXISTED_BOOK_ID);
+    void shouldCorrectReadComments() throws AppServiceException {
+        final List<BookComment> commentList = bookCommentService.readComments(EXISTED_BOOK_ID);
         assertThat(commentList.size()).isEqualTo(2);
         assertThat(commentList.get(0)).isEqualTo(this.existedBookComment);
     }

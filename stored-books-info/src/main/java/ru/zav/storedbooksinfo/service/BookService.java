@@ -14,8 +14,4 @@ public interface BookService {
     Book changeTitle(String bookId, String newTitle) throws AppServiceException;
     List<Book> getAll() throws AppServiceException;
     List<Book> findByTitle(String title) throws AppServiceException;
-    Optional<Book> addComment(String bookId, String comment) throws AppServiceException;
-    Optional<Book> deleteComment(String commentId) throws AppServiceException;
-    Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException;
-    List<BookComment> readComments(String bookId) throws AppServiceException;
 }

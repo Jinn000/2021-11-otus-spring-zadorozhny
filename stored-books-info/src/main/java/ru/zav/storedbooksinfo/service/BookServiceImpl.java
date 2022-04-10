@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
-    private final BookCommentRepository bookCommentRepository;
 
     private final GenreService genreService;
 
@@ -109,50 +108,5 @@ public class BookServiceImpl implements BookService {
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
-    }
-//-----  Работа с коментами  --------------------------------------------------
-    @Transactional
-    @Override
-    public Optional<Book> addComment(String bookId, String comment) throws AppServiceException {
-        final Optional<Book> optionalBook = bookRepository.getById(bookId);
-        var g =  optionalBook
-                .map(book-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, book, comment)));
-
-        return optionalBook.map(Book::getId).flatMap(bookRepository::getById);
-    }
-
-    @Transactional
-    @Override
-    public Optional<Book> deleteComment(String commentId) throws AppServiceException {
-
-        var bookOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
-                .map(BookComment::getBook);
-
-        try {
-            bookCommentRepository.deleteById(commentId);
-        } catch (Exception e) {
-            throw new AppServiceException(e.getMessage(), e);
-        }
-        return bookOpt;
-    }
-
-    @Transactional
-    @Override
-    public Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException {
-        final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
-
-        return bookCommentOptional
-                .map(c -> {
-                    c.setComment(newComment);
-                    return c;
-                })
-                .map(bookCommentRepository::save)
-                .map(BookComment::getBook);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<BookComment> readComments(String bookId) throws AppServiceException {
-        return bookRepository.getById(bookId).map(Book::getComments).orElse(null);
     }
 }
