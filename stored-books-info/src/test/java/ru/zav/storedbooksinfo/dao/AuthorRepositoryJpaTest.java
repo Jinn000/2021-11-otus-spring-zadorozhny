@@ -79,7 +79,7 @@ class AuthorRepositoryJpaTest {
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Author> authorList = authorRepository.readAll();
-        assertThat(authorList.size()).isEqualTo(3);
+        assertThat(authorList.size()).isEqualTo(7);
 
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");

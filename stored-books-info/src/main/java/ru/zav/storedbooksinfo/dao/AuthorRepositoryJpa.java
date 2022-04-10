@@ -43,7 +43,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Удаление по ID
      * @return количество удаленных строк*/
-    @Transactional
     @Override
     public int deleteById(String id) {
         try {
@@ -57,7 +56,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     /**Сохранение обьекта.
      * @return обновленный обьект*/
-    @Transactional
     @Override
     public Author save(Author author){
         if(author.getId() == null){
@@ -78,7 +76,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     /**Очистка таблицы*/
-    @Transactional
     @Override
     public void clearAll() {
         try {

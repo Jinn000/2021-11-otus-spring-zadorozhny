@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.zav.storedbooksinfo.dao.AuthorRepository;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Author;
@@ -18,6 +19,7 @@ import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,22 +37,26 @@ class BookServiceTest {
     public static final String EXISTED_BOOK_ID = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
     public static final String FAKE_EXISTED_BOOK_ID = "G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10_FAKE";
     public static final String EXISTED_GENRE_ID_MYSTIC = "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10";
+    Book existedBook = null;
 
     @Autowired
     private BookService bookService;
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Setter @Getter
     private Book expectedBook;
 
 
     @BeforeEach
-    private void beforeEach(){
+    private void beforeEach() throws AppServiceException {
         final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
+        this.existedBook = bookRepository.getById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", this.existedBook, "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", this.existedBook, "Не читал, но осуждаю."));
 
         setExpectedBook(new Book(EXISTED_BOOK_ID, EXISTED_BOOK_TITLE, existedGenre, existedAuthorList, existBookComments));
     }
@@ -62,15 +68,13 @@ class BookServiceTest {
     void shouldCorrectAdd() throws AppServiceException {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
-        final Author existAuthor = new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "Васильевич", "Гоголь");
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+        final Author existAuthor = authorRepository.getById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
 
         BookBean bookBean = BookBean.builder()
                 .title(newTitle)
                 .genreTitle(newGenreTitle)
                 .authors(List.of(existAuthor))
-                .comments(existBookComments)
+                .comments(new ArrayList<>())
                 .build();
         final Book createdBook = bookService.add(bookBean);
         assertThat(createdBook).isNotNull();
@@ -109,7 +113,7 @@ class BookServiceTest {
     @Test
     void shouldCorrectGetAll() throws AppServiceException {
         final List<Book> bookList = bookService.getAll();
-        assertThat(bookList.size()).isEqualTo(2);
+        assertThat(bookList.size()).isEqualTo(10);
 
         final Optional<Book> bookOptional = bookList.stream().filter(d -> d.getId().equals(expectedBook.getId())).findFirst();
         assertThat(bookOptional.isPresent()).isTrue();

@@ -42,8 +42,8 @@ class BookRepositoryJpaTest {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", em.find(Book.class, EXISTED_BOOK_ID), "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", em.find(Book.class, EXISTED_BOOK_ID), "Не читал, но осуждаю."));
 
         final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
 
@@ -88,13 +88,13 @@ class BookRepositoryJpaTest {
     @Test
     void shouldCorrectReadAll() throws AppDaoException {
         final List<Book> bookList = bookRepository.readAll();
-        assertThat(bookList.size()).isEqualTo(2);
+        assertThat(bookList.size()).isEqualTo(10);
 
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Не читал, но осуждаю."));
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", em.find(Book.class, EXISTED_BOOK_ID), "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", em.find(Book.class, EXISTED_BOOK_ID), "Не читал, но осуждаю."));
 
         final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
         final Optional<Book> bookOpt = bookList.stream().filter(a -> a.getId().equals(EXISTED_BOOK_ID)).findFirst();

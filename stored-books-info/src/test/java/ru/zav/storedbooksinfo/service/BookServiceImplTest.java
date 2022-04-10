@@ -40,12 +40,14 @@ class BookServiceImplTest {
     public static final String EXISTED_NAME = "Николай";
     public static final String NEW_COMMENT = "New test comment.";
     public static final String EXISTED_BOOK_TITLE = "Вечера на хуторе близ диканьки";
+    Book existedBook = null;
 
 
     @BeforeEach
-    void beforeEach(){
-        this.existedBookComment = new BookComment(EXISTED_COMMENT_ID_NIKOLAY, EXISTED_NAME, EXISTED_BOOK_ID, EXISTED_COMMENT);
-        this.expectedBookComment = new BookComment(null, EXISTED_NAME, EXISTED_BOOK_ID, NEW_COMMENT);
+    void beforeEach() throws AppServiceException {
+        this.existedBook = bookService.findByTitle(EXISTED_BOOK_TITLE).get(0);
+        this.existedBookComment = new BookComment(EXISTED_COMMENT_ID_NIKOLAY, EXISTED_NAME, this.existedBook, EXISTED_COMMENT);
+        this.expectedBookComment = new BookComment(null, EXISTED_NAME, this.existedBook, NEW_COMMENT);
     }
 
     @Test

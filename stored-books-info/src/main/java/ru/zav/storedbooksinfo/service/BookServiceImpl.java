@@ -115,8 +115,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public Optional<Book> addComment(String bookId, String comment) throws AppServiceException {
         final Optional<Book> optionalBook = bookRepository.getById(bookId);
-        var g =  optionalBook.map(Book::getId)
-                .map(bId-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, bId, comment)));
+        var g =  optionalBook
+                .map(book-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, book, comment)));
 
         return optionalBook.map(Book::getId).flatMap(bookRepository::getById);
     }
@@ -125,16 +125,15 @@ public class BookServiceImpl implements BookService {
     @Override
     public Optional<Book> deleteComment(String commentId) throws AppServiceException {
 
-        var bookIdOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
-                .map(BookComment::getBookId)
-                .flatMap(bookRepository::getById);
+        var bookOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
+                .map(BookComment::getBook);
 
         try {
             bookCommentRepository.deleteById(commentId);
         } catch (Exception e) {
             throw new AppServiceException(e.getMessage(), e);
         }
-        return bookIdOpt;
+        return bookOpt;
     }
 
     @Transactional
@@ -142,11 +141,13 @@ public class BookServiceImpl implements BookService {
     public Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException {
         final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
 
-        return bookCommentOptional.stream()
-                .peek(c-> c.setComment(newComment)).findFirst()
+        return bookCommentOptional
+                .map(c -> {
+                    c.setComment(newComment);
+                    return c;
+                })
                 .map(bookCommentRepository::save)
-                .map(BookComment::getBookId)
-                .flatMap(bookRepository::getById);
+                .map(BookComment::getBook);
     }
 
     @Transactional(readOnly = true)

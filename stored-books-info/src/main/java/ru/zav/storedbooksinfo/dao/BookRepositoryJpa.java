@@ -43,7 +43,6 @@ public class BookRepositoryJpa implements BookRepository {
 
     /**Удаление книги по ID
      * @return количество удаленных строк*/
-    @Transactional
     @Override
     public int deleteById(String id) {
         try {
@@ -61,7 +60,6 @@ public class BookRepositoryJpa implements BookRepository {
 
     /**Сохранение Книги.
      * @return Актуальный объект*/
-    @Transactional
     @Override
     public Book save(Book book) {
         if(book.getId() == null){

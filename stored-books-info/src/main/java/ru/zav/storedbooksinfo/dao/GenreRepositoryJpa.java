@@ -37,7 +37,6 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Удаление по ID
      * @return количество удаленных строк*/
-    @Transactional
     @Override
     public int deleteById(EntityId id) {
         try {
@@ -50,7 +49,6 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     /**Сохранение обьекта.
      * @return сохраненный объект Жанр*/
-    @Transactional
     @Override
     public Genre save(Genre genre) {
         if(genre.getId() == null){
@@ -72,7 +70,6 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     /**Очистка таблицы*/
-    @Transactional
     @Override
     public void clearAll() {
         try {

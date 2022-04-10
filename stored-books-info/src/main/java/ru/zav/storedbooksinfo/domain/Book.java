@@ -38,7 +38,7 @@ public class Book {
     )
     private List<Author> authors;
 
-    @OneToMany(mappedBy="bookId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BookComment> comments;
 
     public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) throws AppDomainException {

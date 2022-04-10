@@ -41,11 +41,10 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
 
     /**Удаление по ID
      * @return количество удаленных строк*/
-    @Transactional
     @Override
     public int deleteById(String id) {
         try {
-            em.remove(getById(id));
+            em.remove(em.find(BookComment.class, id));
             return 1;
         } catch (Exception e) {
             throw new AppDaoException(String.format("Не удалось удалить объект с ID: %s. Причина: %s", id,  e.getCause()), e);
@@ -54,7 +53,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
 
     /**Сохранение обьекта.
      * @return обновленный объект*/
-    @Transactional
     @Override
     public BookComment save(BookComment bookComment){
         if(bookComment.getId() == null){
@@ -75,7 +73,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
     }
 
     /**Очистка таблицы*/
-    @Transactional
     @Override
     public void clearAll() {
         try {
@@ -91,7 +88,7 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
         if(bookId == null) throw new AppDaoException("Ошибка! Не указан bookId для поиска.");
 
         final String sql = "SELECT b FROM BookComment b " +
-                "WHERE b.bookId = upper(:bookId)";
+                "WHERE b.book.id = upper(:bookId)";
         List<BookComment> bookCommentList;
         try {
             return em.createQuery(sql, BookComment.class)

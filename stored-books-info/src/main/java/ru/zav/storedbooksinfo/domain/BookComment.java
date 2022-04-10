@@ -22,9 +22,9 @@ public class BookComment {
     @Column(name = "NAME", length = 64)
     private String name;
 
-    @Column(name = "BOOK_ID", length = 36)
-    @Basic(optional = false)
-    private String bookId;
+    @ManyToOne
+    @JoinColumn(name = "BOOK_ID",nullable = false)
+    private Book book;
 
     @Column(name = "COMMENT", length = 4000)
     private String comment;

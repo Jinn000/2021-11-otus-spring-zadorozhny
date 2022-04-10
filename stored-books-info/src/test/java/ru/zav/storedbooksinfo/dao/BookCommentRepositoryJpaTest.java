@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
@@ -35,7 +36,7 @@ class BookCommentRepositoryJpaTest {
 
     @BeforeEach
     void beforeEach(){
-        this.expectedBookComment = new BookComment(EXPECTED_COMMENT_ID_NIKOLAY, EXPECTED_NAME, EXPECTED_BOOK_ID, EXPECTED_COMMENT);
+        this.expectedBookComment = new BookComment(EXPECTED_COMMENT_ID_NIKOLAY, EXPECTED_NAME, em.find(Book.class, EXPECTED_BOOK_ID), EXPECTED_COMMENT);
     }
 
     @DisplayName("Проверка получения Комментария по ID")
@@ -56,7 +57,7 @@ class BookCommentRepositoryJpaTest {
     @DisplayName("Проверка способности добавлять комментарий.")
     @Test
     void shouldCorrectInsert() throws AppDaoException {
-        BookComment expectedBookComment = new BookComment(null, EXPECTED_NAME, EXPECTED_BOOK_ID, EXPECTED_COMMENT);
+        BookComment expectedBookComment = new BookComment(null, EXPECTED_NAME, em.find(Book.class, EXPECTED_BOOK_ID), EXPECTED_COMMENT);
         expectedBookComment = bookCommentRepository.save(expectedBookComment);
         final BookComment actualBookComment = bookCommentRepository.getById(expectedBookComment.getId());
         assertThat(actualBookComment).usingRecursiveComparison().isEqualTo(expectedBookComment);
