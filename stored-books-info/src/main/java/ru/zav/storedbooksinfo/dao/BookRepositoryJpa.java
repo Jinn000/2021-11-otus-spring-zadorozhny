@@ -81,7 +81,6 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     /**Очистка таблицы*/
-    @Transactional
     @Override
     public void clearAll() {
         try {
@@ -92,7 +91,6 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
 
-    @Transactional
     @Override
     public List<Book> findByGenre(Genre genre) {
         if(genre == null) return new ArrayList<>();
