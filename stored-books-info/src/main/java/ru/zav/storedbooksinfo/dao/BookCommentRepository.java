@@ -10,5 +10,4 @@ public interface BookCommentRepository {
     BookComment save(BookComment comment);
     List<BookComment> readAll() ;
     void clearAll() ;
-    List<BookComment> findByBookId(String bookId);
 }

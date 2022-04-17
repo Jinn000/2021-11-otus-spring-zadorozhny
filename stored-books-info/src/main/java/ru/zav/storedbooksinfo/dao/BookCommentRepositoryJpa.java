@@ -81,23 +81,6 @@ public class BookCommentRepositoryJpa implements BookCommentRepository{
             throw new AppDaoException(String.format("Не удалось сбросить таблицу. Причина: %s", e.getCause()), e);
         }
     }
-
-    /**Поиск комментариев к книге, по ее ID*/
-    @Override
-    public List<BookComment> findByBookId(String bookId) {
-        if(bookId == null) throw new AppDaoException("Ошибка! Не указан bookId для поиска.");
-
-        final String sql = "SELECT b FROM BookComment b " +
-                "WHERE b.book.id = upper(:bookId)";
-        List<BookComment> bookCommentList;
-        try {
-            return em.createQuery(sql, BookComment.class)
-                    .setParameter("bookId", bookId)
-                    .getResultList();
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-    }
     //*****************************************************
 
 }

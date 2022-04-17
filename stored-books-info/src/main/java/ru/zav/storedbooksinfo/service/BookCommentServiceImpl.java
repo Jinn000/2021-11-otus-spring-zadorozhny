@@ -9,6 +9,7 @@ import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,6 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional(readOnly = true)
     @Override
     public List<BookComment> readComments(String bookId) throws AppServiceException {
-        return bookRepository.getById(bookId).map(Book::getComments).orElse(null);
+        return bookRepository.getById(bookId).map(Book::getComments).orElse(new ArrayList<>());
     }
 }

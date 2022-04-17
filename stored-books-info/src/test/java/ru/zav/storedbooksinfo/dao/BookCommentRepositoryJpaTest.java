@@ -12,6 +12,7 @@ import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Проверка DAO работы с Комментариями:")
 @Data
-@Import(BookCommentRepositoryJpa.class)
+@Import({BookCommentRepositoryJpa.class, BookRepositoryJpa.class})
 @DataJpaTest
 class BookCommentRepositoryJpaTest {
     @Autowired
     private BookCommentRepository bookCommentRepository;
+    @Autowired
+    private BookRepository bookRepository;
     @Autowired
     private TestEntityManager em;
 
@@ -85,12 +88,15 @@ class BookCommentRepositoryJpaTest {
     @DisplayName("Проверка получения Комментариев по ID книги")
     @Test
     void shouldCorrectFindByBookId() throws AppDaoException {
-        final List<BookComment> bookCommentByBookId = bookCommentRepository.findByBookId(EXPECTED_BOOK_ID);
+        final Optional<List<BookComment>> commentListOpt = bookRepository.getById(EXPECTED_BOOK_ID).map(Book::getComments);
+        assertThat(commentListOpt.isEmpty()).isFalse();
+
+        final List<BookComment> bookCommentByBookId = commentListOpt.orElse(new ArrayList<>());
         assertThat(bookCommentByBookId.isEmpty()).isFalse();
         assertThat(bookCommentByBookId.get(0)).usingRecursiveComparison().isEqualTo(this.expectedBookComment);
 
         //несуществующий не должен быть найден
-        final List<BookComment> fakeBookCommentByBookId = bookCommentRepository.findByBookId("B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A99");
+        final List<BookComment> fakeBookCommentByBookId = bookRepository.getById("B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A99").map(Book::getComments).orElse(new ArrayList<>());
         assertThat(fakeBookCommentByBookId.isEmpty()).isTrue();
     }
 }
