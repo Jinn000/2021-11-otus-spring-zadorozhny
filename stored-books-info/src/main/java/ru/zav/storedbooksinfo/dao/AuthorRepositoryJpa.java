@@ -75,15 +75,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
         }
     }
 
-    /**Очистка таблицы*/
-    @Override
-    public void clearAll() {
-        try {
-            em.createQuery("TRUNCATE TABLE AUTHOR").executeUpdate();
-        } catch (Exception e) {
-            throw new AppDaoException(String.format("Не удалось сбросить таблицу. Причина: %s", e.getCause()), e);
-        }
-    }
 
     @Override
     public Optional<Author> findByFullName(FullName fullName) {

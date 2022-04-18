@@ -13,6 +13,5 @@ public interface AuthorRepository {
     int deleteById(String id);
     Author save(Author author);
     List<Author> readAll() ;
-    void clearAll() ;
     Optional<Author> findByFullName(FullName fullName);
 }
