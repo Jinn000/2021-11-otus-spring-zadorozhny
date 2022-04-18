@@ -137,6 +137,56 @@ public class ShellCommands implements BooksInfoUi {
     }
 
     @ShellMethodAvailability(value = "true")
+    @ShellMethod(key = {"author-rename", "ar"}, value = "Переименование автора")
+    @Transactional
+    @Override
+    public void authorRename(){
+        layoutService.show("Переименование автора.");
+
+        boolean doRepeat = true;
+        while (doRepeat){
+            String namesString = layoutService.ask("Введите полное ФИО автора для переименования (в формате Имя Отчество Фамилия). Или \"0\", для отмены.");
+            if (namesString.equals("0")) {
+                doRepeat = false;
+                continue;
+            }
+
+
+            FullName fullName;
+            try {
+                fullName = FullName.valueOf(namesString);
+            } catch (AppServiceException e) {
+                layoutService.show(e.getLocalizedMessage());
+                continue;
+            }
+
+            final String newNamesString = layoutService.ask("Введите новое имя автора (в формате Имя Отчество Фамилия):");
+
+            FullName newFullName;
+            try {
+                newFullName = FullName.valueOf(newNamesString);
+            } catch (AppServiceException e) {
+                layoutService.show(e.getLocalizedMessage());
+                continue;
+            }
+
+            Optional<Author> byFullNameOpt = Optional.empty();
+            try {
+                byFullNameOpt = Optional.ofNullable(authorService.rename(fullName, newFullName));
+            } catch (AppServiceException e) {
+                layoutService.show(e.getLocalizedMessage());
+            }
+
+            doRepeat = byFullNameOpt.isEmpty();
+            if(doRepeat){
+                layoutService.show("Не удалось переименовать автора. Повторите ввод.");
+            }else{
+                layoutService.show("Автор переименован.");
+            }
+        }
+    }
+
+    @ShellMethodAvailability(value = "true")
     @ShellMethod(key = {"authors", "as"}, value = "Показать всех авторов")
     @Transactional(readOnly = true)
     @Override

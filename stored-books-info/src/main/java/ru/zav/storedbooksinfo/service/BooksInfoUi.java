@@ -7,6 +7,7 @@ public interface BooksInfoUi {
     void showGenres();
 
     void authorAdd();
+    void authorRename();
     void showAuthors();
 
     void bookAdd();

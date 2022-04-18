@@ -31,7 +31,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public void delete(FullName fullName) throws AppServiceException {
+    public int delete(FullName fullName) throws AppServiceException {
         if(StringUtils.isBlank(fullName.getFirstName())) throw new AppServiceException("Ошибка! Не указано Имя автора.");
         if(StringUtils.isBlank(fullName.getLastName())) throw new AppServiceException("Ошибка! Не указано Отчество автора.");
         if(StringUtils.isBlank(fullName.getFamilyName())) throw new AppServiceException("Ошибка! Не указана Фамилия автора.");
@@ -43,60 +43,43 @@ public class AuthorServiceImpl implements AuthorService {
             throw new AppServiceException(e.getMessage(), e);
         }
 
-        authorOptional.map(Author::getId)
+        return authorOptional.map(Author::getId)
                 .map(id -> {
                     try {
                         return authorRepository.deleteById(id);
                     } catch (AppDaoException e) {
-                        e.printStackTrace();
+                        return 0;
                     }
-                    return 0;
-                });
+                }).orElse(0);
     }
 
     @Transactional
     @Override
     public Author rename(FullName oldName, FullName newName) throws AppServiceException {
-        final Optional<Author> authorOptional;
+        Optional<Author> authorOptional;
         try {
             authorOptional = authorRepository.findByFullName(oldName);
         } catch (AppDaoException e) {
-            throw new AppServiceException(e.getMessage(), e);
+            authorOptional = Optional.empty();
         }
 
-        var updatedCount = authorOptional.map(author -> {
-            try {
-                final Author newAuthor = new Author(author.getId(), newName.getFirstName(), newName.getLastName(), newName.getFamilyName());
-                return authorRepository.save(newAuthor);
-            } catch (AppDaoException e) {
-                e.printStackTrace();
-            }
-            return 0;
+        return authorOptional.map(author -> {
+                author.setFirstName(newName.getFirstName());
+                author.setLastName(newName.getLastName());
+                author.setFamilyName(newName.getFamilyName());
+                return author;
         }).orElseThrow(() -> new AppServiceException(String.format("Не удалось найти автора: %s", oldName.toString())));
-
-        if(updatedCount.equals(0)) throw new AppServiceException(String.format("Не удалось переименовать автора %s в %s", oldName.toString(), newName.toString()));
-
-        try {
-            return authorRepository.getById(authorOptional.map(Author::getId)
-                    .orElseThrow(()-> new AppServiceException(String.format("Не удалось найти автора: %s", oldName.toString()))));
-        } catch (AppDaoException e) {
-            throw new AppServiceException(e.getMessage(), e);
-        }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Author> getAll() throws AppServiceException {
-        final List<Author> authorList;
         try {
-            authorList = authorRepository.readAll();
+            return authorRepository.readAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
-        return authorList;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<Author> findByFullName(FullName fullName) throws AppServiceException {
         try {

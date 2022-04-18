@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface AuthorService {
     Author add(FullName fullName) throws AppServiceException;
-    void delete(FullName fullName) throws AppServiceException;
+    int delete(FullName fullName) throws AppServiceException;
     Author rename(FullName oldName, FullName newName) throws AppServiceException;
     List<Author> getAll() throws AppServiceException;
     Optional<Author> findByFullName(FullName fullName) throws AppServiceException;
