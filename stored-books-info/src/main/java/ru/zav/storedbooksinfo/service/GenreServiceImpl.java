@@ -22,7 +22,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public Genre add(String genreDescription) throws AppServiceException{
+    public Genre add(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для добавляемого жанра.");
 
         try {
@@ -35,7 +35,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public int delete(String genreDescription) throws AppServiceException {
+    public int delete(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для удаляемого жанра.");
 
         final String genreDescriptionTrimmed = StringUtils.trim(genreDescription);
@@ -72,7 +72,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public Genre rename(String oldDescription, String newDescription) throws AppServiceException {
+    public Genre rename(String oldDescription, String newDescription) {
         if(StringUtils.isBlank(oldDescription) || StringUtils.isBlank(newDescription)) throw new AppServiceException("Ошибка! Не указан Description для переименования жанра.");
 
         final String oldDescriptionTrimmed = StringUtils.trim(oldDescription);
@@ -102,7 +102,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Genre> getAll() throws AppServiceException {
+    public List<Genre> getAll() {
         try {
             return genreRepository.readAll();
         } catch (AppDaoException e) {
@@ -112,7 +112,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Genre> findByDescription(String description) throws AppServiceException {
+    public Optional<Genre> findByDescription(String description) {
         try {
             return genreRepository.findByDescription(description);
         } catch (AppDaoException e) {
@@ -120,7 +120,7 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
-    private boolean isUsed(Genre genre) throws AppServiceException {
+    private boolean isUsed(Genre genre) {
         try {
             return !bookRepository.findByGenre(genre).isEmpty();
         } catch (AppDaoException e) {

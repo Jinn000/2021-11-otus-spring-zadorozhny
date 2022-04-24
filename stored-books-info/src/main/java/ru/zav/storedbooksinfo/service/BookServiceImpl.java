@@ -3,12 +3,10 @@ package ru.zav.storedbooksinfo.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.zav.storedbooksinfo.dao.BookCommentRepository;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Book;
-import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
@@ -16,7 +14,6 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -32,7 +29,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Book add(BookBean bookBean) throws AppServiceException {
+    public Book add(BookBean bookBean) {
         try {
             final Optional<Genre> genreOptional = genreRepository.findByDescription(bookBean.getGenreTitle());
             final Genre genre = genreOptional.orElse(genreService.add(bookBean.getGenreTitle()));
@@ -45,7 +42,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public int delete(String bookId) throws AppServiceException{
+    public int delete(String bookId){
         try {
             var deletedBooksCountOpt = bookRepository.getById(bookId).map(Book::getId)
                     .map(id -> {
@@ -64,7 +61,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Book changeTitle(String bookId, String newTitle) throws AppServiceException {
+    public Book changeTitle(String bookId, String newTitle) {
         final Optional<Book> bookOptional;
         try {
             bookOptional = bookRepository.getById(bookId);
@@ -90,7 +87,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Book> getAll() throws AppServiceException {
+    public List<Book> getAll() {
         try {
             return bookRepository.readAll();
         } catch (AppDaoException e) {
@@ -100,7 +97,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Book> findByTitle(String title) throws AppServiceException {
+    public List<Book> findByTitle(String title) {
         if(title == null) throw new AppServiceException("Ошибка! Не указано наименование книги для поиска.");
 
         try {

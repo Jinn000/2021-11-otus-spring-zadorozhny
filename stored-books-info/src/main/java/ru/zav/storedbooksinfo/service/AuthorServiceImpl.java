@@ -20,7 +20,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public Author add(FullName fullName) throws AppServiceException {
+    public Author add(FullName fullName) {
         try {
             final Author newAuthor = new Author(null, fullName.getFirstName(), fullName.getLastName(), fullName.getFamilyName());
             return authorRepository.save(newAuthor);
@@ -31,7 +31,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public int delete(FullName fullName) throws AppServiceException {
+    public int delete(FullName fullName) {
         if(StringUtils.isBlank(fullName.getFirstName())) throw new AppServiceException("Ошибка! Не указано Имя автора.");
         if(StringUtils.isBlank(fullName.getLastName())) throw new AppServiceException("Ошибка! Не указано Отчество автора.");
         if(StringUtils.isBlank(fullName.getFamilyName())) throw new AppServiceException("Ошибка! Не указана Фамилия автора.");
@@ -55,7 +55,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public Author rename(FullName oldName, FullName newName) throws AppServiceException {
+    public Author rename(FullName oldName, FullName newName) {
         Optional<Author> authorOptional;
         try {
             authorOptional = authorRepository.findByFullName(oldName);
@@ -72,7 +72,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public List<Author> getAll() throws AppServiceException {
+    public List<Author> getAll() {
         try {
             return authorRepository.readAll();
         } catch (AppDaoException e) {
@@ -81,7 +81,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Optional<Author> findByFullName(FullName fullName) throws AppServiceException {
+    public Optional<Author> findByFullName(FullName fullName) {
         try {
             return authorRepository.findByFullName(fullName);
         } catch (AppDaoException e) {

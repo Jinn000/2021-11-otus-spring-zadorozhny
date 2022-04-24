@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.datatypes.FullName;
@@ -17,8 +16,9 @@ import ru.zav.storedbooksinfo.service.*;
 import ru.zav.storedbooksinfo.ui.LayoutService;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @ShellComponent
 @RequiredArgsConstructor

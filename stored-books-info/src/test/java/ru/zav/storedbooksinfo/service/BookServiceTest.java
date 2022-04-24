@@ -51,7 +51,7 @@ class BookServiceTest {
 
 
     @BeforeEach
-    private void beforeEach() throws AppServiceException {
+    private void beforeEach() {
         final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         this.existedBook = bookRepository.getById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
@@ -65,7 +65,7 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно добавлять книгу.")
     @Transactional
     @Test
-    void shouldCorrectAdd() throws AppServiceException {
+    void shouldCorrectAdd() {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
         final Author existAuthor = authorRepository.getById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
@@ -90,7 +90,7 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно удалять книгу.")
     @Transactional
     @Test
-    void delete() throws AppServiceException {
+    void delete() {
         assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isTrue();
         bookService.delete(expectedBook.getId());
         assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isFalse();
@@ -99,7 +99,7 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно изменять название книги.")
     @Transactional
     @Test
-    void changeTitle() throws AppServiceException {
+    void changeTitle() {
         assertThat(expectedBook.getTitle()).isEqualTo(EXISTED_BOOK_TITLE);
         bookService.changeTitle(expectedBook.getId(), NEW_BOOK_TITLE);
 
@@ -111,7 +111,7 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно получать все книги.")
     @Transactional
     @Test
-    void shouldCorrectGetAll() throws AppServiceException {
+    void shouldCorrectGetAll() {
         final List<Book> bookList = bookService.getAll();
         assertThat(bookList.size()).isEqualTo(10);
 
@@ -123,7 +123,7 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно искать книги по названию.")
     @Transactional
     @Test
-    void findByTitle() throws AppServiceException {
+    void findByTitle() {
         final List<Book> bookListByTitle = bookService.findByTitle(expectedBook.getTitle());
         assertThat(bookListByTitle.isEmpty()).isFalse();
         assertThat(bookListByTitle.size()).isEqualTo(1);

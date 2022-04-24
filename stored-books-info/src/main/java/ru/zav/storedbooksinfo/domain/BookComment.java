@@ -23,7 +23,7 @@ public class BookComment {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "BOOK_ID",nullable = false)
+    @JoinColumn(name = "BOOK_ID")
     private Book book;
 
     @Column(name = "COMMENT", length = 4000)

@@ -38,7 +38,7 @@ class GenreRepositoryJpaTest {
 
     @DisplayName("Проверка получения всех Жанров.")
     @Test
-    void shouldCorrectReadAll() throws AppDaoException {
+    void shouldCorrectReadAll() {
         final List<Genre> genreList = genreRepository.readAll();
         assertThat(genreList.size()).isEqualTo(3);
 
@@ -50,7 +50,7 @@ class GenreRepositoryJpaTest {
     }
     @DisplayName("Проверка удаления Жанра по ID.")
     @Test
-    void shouldCorrectDeleteById() throws AppDaoException {
+    void shouldCorrectDeleteById() {
         // Существующий в базе с рождения - 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10', 'Мистика'
         final Genre deletedGenre = new Genre("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10","Мистика");
         genreRepository.deleteById(new EntityId(deletedGenre.getId()));
@@ -60,7 +60,7 @@ class GenreRepositoryJpaTest {
 
     @DisplayName("Проверка способности добавлять Жанр.")
     @Test
-    void shouldCorrectInsert() throws AppDaoException {
+    void shouldCorrectInsert() {
 //        Genre expectedGenre = new Genre(null,"НовыйЖанр");
         Genre expectedGenre = genreRepository.getById(new EntityId("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10"));
         em.detach(expectedGenre);
@@ -72,7 +72,7 @@ class GenreRepositoryJpaTest {
 
     @DisplayName("Проверка получения Автора по ФИО")
     @Test
-    void shouldCorrectFindByDescription() throws AppDaoException {
+    void shouldCorrectFindByDescription() {
         // Существующий в базе с рождения - 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10', 'Мистика'
         final Genre expectedGenre = new Genre("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10","Мистика");
 

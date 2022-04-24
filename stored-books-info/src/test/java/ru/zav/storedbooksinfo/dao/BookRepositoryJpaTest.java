@@ -38,7 +38,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка получения Книги по ID.")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectGetById() throws AppDaoException {
+    void shouldCorrectGetById() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
         final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
@@ -56,7 +56,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка удаления Книги по ID.")
     @Transactional
     @Test
-    void shouldCorrectDeleteById() throws AppDaoException {
+    void shouldCorrectDeleteById() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Optional<Book> deletedBookOpt = bookRepository.getById(EXISTED_BOOK_ID);
         assertThat(deletedBookOpt.isPresent()).isTrue();
@@ -70,7 +70,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка способности добавлять Книги.")
     @Transactional
     @Test
-    void shouldCorrectInsert() throws AppDaoException {
+    void shouldCorrectInsert() {
         final Genre genre = new Genre(null,"Мистика");
         final List<Author> authorList = List.of(new Author(null,"Николай", "Васильевич", "Гоголь"));
         Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList, new ArrayList<>());
@@ -86,7 +86,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка получения всех Книг.")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectReadAll() throws AppDaoException {
+    void shouldCorrectReadAll() {
         final List<Book> bookList = bookRepository.readAll();
         assertThat(bookList.size()).isEqualTo(10);
 
@@ -106,7 +106,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка получения Книг по жанрам.")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectFindByGenre() throws AppDaoException {
+    void shouldCorrectFindByGenre() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Optional<Book> expectedBook = bookRepository.getById(EXISTED_BOOK_ID);
         assertThat(expectedBook.isPresent()).isTrue();
@@ -125,7 +125,7 @@ class BookRepositoryJpaTest {
     @DisplayName("Проверка получения Книг по названию.")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectFindByTitle() throws AppDaoException {
+    void shouldCorrectFindByTitle() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
         final Optional<Book> expectedBook = bookRepository.getById(EXISTED_BOOK_ID);
         assertThat(expectedBook.isPresent()).isTrue();

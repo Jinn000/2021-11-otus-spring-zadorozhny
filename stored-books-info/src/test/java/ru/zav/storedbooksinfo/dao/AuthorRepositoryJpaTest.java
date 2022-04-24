@@ -36,7 +36,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка получения Автора по ID")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectGetById() throws AppDaoException {
+    void shouldCorrectGetById() {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
         final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
@@ -46,7 +46,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка удаления Автора по ID")
     @Transactional
     @Test
-    void shouldCorrectDeleteById() throws AppDaoException {
+    void shouldCorrectDeleteById() {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
         final Author deletedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
         authorRepository.deleteById(EXISTED_AUTHOR_ID_GOGOL);
@@ -57,7 +57,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка способности добавлять автора.")
     @Transactional
     @Test
-    void shouldCorrectInsert() throws AppDaoException {
+    void shouldCorrectInsert() {
         Author expectedAuthor = new Author(null,"Николай", "Николаевич", "Николаев");
         expectedAuthor = authorRepository.save(expectedAuthor);
         final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
@@ -67,7 +67,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка способности изменить данные Автора.")
     @Transactional
     @Test
-    void shouldCorrectUpdate() throws AppDaoException {
+    void shouldCorrectUpdate() {
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Моголь");
         authorRepository.save(expectedAuthor);
         final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
@@ -77,7 +77,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка получения всех Авторов.")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectReadAll() throws AppDaoException {
+    void shouldCorrectReadAll() {
         final List<Author> authorList = authorRepository.readAll();
         assertThat(authorList.size()).isEqualTo(7);
 
@@ -90,7 +90,7 @@ class AuthorRepositoryJpaTest {
 
 /*    @DisplayName("Проверка очистки таблицы с Авторами.")
     @Test
-    void shouldCorrectClearAll() throws AppDaoException {
+    void shouldCorrectClearAll() {
         final List<Author> storeAuthorList = authorDao.readAll();
 
         authorDao.clearAll();
@@ -110,7 +110,7 @@ class AuthorRepositoryJpaTest {
     @DisplayName("Проверка получения Автора по ФИО")
     @Transactional(readOnly = true)
     @Test
-    void shouldCorrectFindByFullName() throws AppDaoException {
+    void shouldCorrectFindByFullName() {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
         final FullName fullName = FullName.builder()

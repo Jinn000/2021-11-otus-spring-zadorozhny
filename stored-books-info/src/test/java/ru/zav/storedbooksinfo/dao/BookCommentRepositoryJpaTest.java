@@ -44,14 +44,14 @@ class BookCommentRepositoryJpaTest {
 
     @DisplayName("Проверка получения Комментария по ID")
     @Test
-    void shouldCorrectGetById() throws AppDaoException {
+    void shouldCorrectGetById() {
         final BookComment actualBookComment = bookCommentRepository.getById(EXPECTED_COMMENT_ID_NIKOLAY);
         assertThat(actualBookComment).usingRecursiveComparison().isEqualTo(this.expectedBookComment);
     }
 
     @DisplayName("Проверка удаления Комментария по ID")
     @Test
-    void shouldCorrectDeleteById() throws AppDaoException {
+    void shouldCorrectDeleteById() {
         bookCommentRepository.deleteById(EXPECTED_COMMENT_ID_NIKOLAY);
         final BookComment actualBookComment = bookCommentRepository.getById(EXPECTED_COMMENT_ID_NIKOLAY);
         assertThat(actualBookComment).isNull();
@@ -59,7 +59,7 @@ class BookCommentRepositoryJpaTest {
 
     @DisplayName("Проверка способности добавлять комментарий.")
     @Test
-    void shouldCorrectInsert() throws AppDaoException {
+    void shouldCorrectInsert() {
         BookComment expectedBookComment = new BookComment(null, EXPECTED_NAME, em.find(Book.class, EXPECTED_BOOK_ID), EXPECTED_COMMENT);
         expectedBookComment = bookCommentRepository.save(expectedBookComment);
         final BookComment actualBookComment = bookCommentRepository.getById(expectedBookComment.getId());
@@ -68,7 +68,7 @@ class BookCommentRepositoryJpaTest {
 
     @DisplayName("Проверка способности изменить комментарий.")
     @Test
-    void shouldCorrectUpdate() throws AppDaoException {
+    void shouldCorrectUpdate() {
         bookCommentRepository.save(this.expectedBookComment);
         final BookComment actualBookComment = bookCommentRepository.getById(EXPECTED_COMMENT_ID_NIKOLAY);
         assertThat(actualBookComment).usingRecursiveComparison().isEqualTo(this.expectedBookComment);
@@ -76,7 +76,7 @@ class BookCommentRepositoryJpaTest {
 
     @DisplayName("Проверка получения всех комментариев.")
     @Test
-    void shouldCorrectReadAll() throws AppDaoException {
+    void shouldCorrectReadAll() {
         final List<BookComment> bookCommentList = bookCommentRepository.readAll();
         assertThat(bookCommentList.size()).isEqualTo(2);
 
@@ -87,7 +87,7 @@ class BookCommentRepositoryJpaTest {
 
     @DisplayName("Проверка получения Комментариев по ID книги")
     @Test
-    void shouldCorrectFindByBookId() throws AppDaoException {
+    void shouldCorrectFindByBookId() {
         final Optional<List<BookComment>> commentListOpt = bookRepository.getById(EXPECTED_BOOK_ID).map(Book::getComments);
         assertThat(commentListOpt.isEmpty()).isFalse();
 

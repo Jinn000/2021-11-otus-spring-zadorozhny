@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
-import ru.zav.storedbooksinfo.utils.AppDomainException;
+import ru.zav.storedbooksinfo.utils.AppServiceException;
 
 import javax.persistence.*;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Book {
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BookComment> comments;
 
-    public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) throws AppDomainException {
+    public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) {
         final Book book = new Book();
         try {
             book.setId(UUID.randomUUID().toString());
@@ -50,7 +50,7 @@ public class Book {
             book.setAuthors(authors);
             book.setComments(comments);
         } catch (Exception e) {
-            throw new AppDomainException(String.format("не удалось сгенерить объект Book. Причина: %s", e.getCause()), e);
+            throw new AppServiceException(String.format("не удалось сгенерить объект Book. Причина: %s", e.getCause()), e);
         }
 
         return book;

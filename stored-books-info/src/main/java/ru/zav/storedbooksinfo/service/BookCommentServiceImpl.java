@@ -25,7 +25,7 @@ public class BookCommentServiceImpl implements BookCommentService {
     //-----  Работа с коментами  --------------------------------------------------
     @Transactional
     @Override
-    public Optional<Book> addComment(String bookId, String comment) throws AppServiceException {
+    public Optional<Book> addComment(String bookId, String comment) {
         final Optional<Book> optionalBook = bookRepository.getById(bookId);
         var g =  optionalBook
                 .map(book-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, book, comment)));
@@ -35,7 +35,7 @@ public class BookCommentServiceImpl implements BookCommentService {
 
     @Transactional
     @Override
-    public Optional<Book> deleteComment(String commentId) throws AppServiceException {
+    public Optional<Book> deleteComment(String commentId) {
 
         var bookOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
                 .map(BookComment::getBook);
@@ -50,7 +50,7 @@ public class BookCommentServiceImpl implements BookCommentService {
 
     @Transactional
     @Override
-    public Optional<Book> updateComment(String commentId, String newComment) throws AppServiceException {
+    public Optional<Book> updateComment(String commentId, String newComment) {
         final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
 
         return bookCommentOptional
@@ -64,7 +64,7 @@ public class BookCommentServiceImpl implements BookCommentService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookComment> readComments(String bookId) throws AppServiceException {
+    public List<BookComment> readComments(String bookId) {
         return bookRepository.getById(bookId).map(Book::getComments).orElse(new ArrayList<>());
     }
 }

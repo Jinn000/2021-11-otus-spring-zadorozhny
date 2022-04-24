@@ -30,7 +30,7 @@ public class FullName {
         return String.format("%s %s %s", this.firstName, this.lastName, this.familyName);
     }
 
-    public static FullName valueOf(String fullName) throws AppServiceException {
+    public static FullName valueOf(String fullName){
         try {
             final String[] names = StringUtils.split(fullName, " ");
 
