@@ -20,17 +20,18 @@ public class BookCommentServiceImpl implements BookCommentService {
     private final BookRepository bookRepository;
 
     /**Эмуляция залогиненого юзера*/
-    private static final String CURRENT_USER_NAME = "Гость";
+    public static final String CURRENT_USER_NAME = "Гость";
 
     //-----  Работа с коментами  --------------------------------------------------
     @Transactional
     @Override
     public Optional<Book> addComment(String bookId, String comment) {
         final Optional<Book> optionalBook = bookRepository.getById(bookId);
-        var g =  optionalBook
-                .map(book-> bookCommentRepository.save(new BookComment(null, CURRENT_USER_NAME, book, comment)));
 
-        return optionalBook.map(Book::getId).flatMap(bookRepository::getById);
+        optionalBook.map(Book::getComments)
+                .map(list-> list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment)));
+
+        return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::getById);
     }
 
     @Transactional
@@ -41,7 +42,10 @@ public class BookCommentServiceImpl implements BookCommentService {
                 .map(BookComment::getBook);
 
         try {
-            bookCommentRepository.deleteById(commentId);
+            List<BookComment> bookComments = bookOpt.map(Book::getComments).orElse(new ArrayList<>());
+            bookComments.stream()
+                    .filter(c-> c.getId().equals(commentId))
+                    .findFirst().map(bookComments::remove);
         } catch (Exception e) {
             throw new AppServiceException(e.getMessage(), e);
         }

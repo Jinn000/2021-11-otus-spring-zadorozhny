@@ -38,7 +38,7 @@ public class Book {
     )
     private List<Author> authors;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<BookComment> comments;
 
     public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) {

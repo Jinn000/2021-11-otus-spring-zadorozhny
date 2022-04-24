@@ -34,10 +34,12 @@ class BookCommentServiceImplTest {
 
     private BookComment existedBookComment;
     private BookComment expectedBookComment;
+    private BookComment expectedNewBookComment;
 
     public static final String EXISTED_COMMENT_ID_NIKOLAY = "BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
     public static final String EXISTED_BOOK_ID = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
     public static final String EXISTED_COMMENT = "Not bad.";
+    public static final String EXPECTED_NEW_NAME = BookCommentServiceImpl.CURRENT_USER_NAME;
     public static final String EXISTED_NAME = "Николай";
     public static final String NEW_COMMENT = "New test comment.";
     public static final String EXISTED_BOOK_TITLE = "Вечера на хуторе близ диканьки";
@@ -48,7 +50,7 @@ class BookCommentServiceImplTest {
     void beforeEach() {
         this.existedBook = bookService.findByTitle(EXISTED_BOOK_TITLE).get(0);
         this.existedBookComment = new BookComment(EXISTED_COMMENT_ID_NIKOLAY, EXISTED_NAME, this.existedBook, EXISTED_COMMENT);
-        this.expectedBookComment = new BookComment(null, EXISTED_NAME, this.existedBook, NEW_COMMENT);
+        this.expectedNewBookComment = new BookComment(null, EXPECTED_NEW_NAME, this.existedBook, NEW_COMMENT);
     }
 
     @DisplayName("Проверка добавления комментария к книге.")
@@ -64,7 +66,7 @@ class BookCommentServiceImplTest {
         Optional<BookComment> bookCommentOpt = actualBookOpt.map(Book::getComments).map(list-> list.get(list.size()-1));
         assertThat(bookCommentOpt.isPresent()).isTrue();
 
-        assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedBookComment);
+        assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedNewBookComment);
     }
 
     @DisplayName("Проверка удаления комментария по его ID.")
