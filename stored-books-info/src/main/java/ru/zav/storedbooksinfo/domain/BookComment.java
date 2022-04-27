@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -11,13 +12,25 @@ import javax.persistence.*;
 @RequiredArgsConstructor
 @Data
 @Entity
-@Table(name = "GENRE")
-public class Genre {
+@Table(name = "BOOK_COMMENT")
+public class BookComment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    @Column(name = "DESCRIPTION", length = 256)
-    private String description;
+    @Column(name = "NAME", length = 64)
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "BOOK_ID")
+    private Book book;
+
+    @Column(name = "COMMENT", length = 4000)
+    private String comment;
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", name, comment);
+    }
 }

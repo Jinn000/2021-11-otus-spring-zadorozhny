@@ -1,5 +1,6 @@
 package ru.zav.storedbooksinfo.service;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.zav.storedbooksinfo.dao.BookDao;
+import ru.zav.storedbooksinfo.dao.AuthorRepository;
+import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
+import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,47 +29,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @DisplayName("Тестирование сервиса работы с книгами:")
+@Data
 @SpringBootTest
 class BookServiceTest {
     public static final String EXISTED_BOOK_TITLE = "Вечера на хуторе близ диканьки";
     public static final String NEW_BOOK_TITLE = "Новое название";
-    private final BookService bookService;
-    private final BookDao bookDao;
+    public static final String EXISTED_BOOK_ID = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
+    public static final String FAKE_EXISTED_BOOK_ID = "G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10_FAKE";
+    public static final String EXISTED_GENRE_ID_MYSTIC = "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10";
+    Book existedBook = null;
+
+    @Autowired
+    private BookService bookService;
+    @Autowired
+    private BookRepository bookRepository;
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Setter @Getter
     private Book expectedBook;
 
-    @Autowired
-    public BookServiceTest(BookService bookService, BookDao bookDao) {
-        this.bookService = bookService;
-        this.bookDao = bookDao;
-    }
 
     @BeforeEach
-    private void beforeEach(){
-        final String existedBookId = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
-        final Genre existedGenre = new Genre("G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Мистика");
+    private void beforeEach() {
+        final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
+        this.existedBook = bookRepository.getById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        setExpectedBook(new Book(existedBookId, EXISTED_BOOK_TITLE, existedGenre, existedAuthorList));
+        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", this.existedBook, "Not bad.")
+                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", this.existedBook, "Не читал, но осуждаю."));
+
+        setExpectedBook(new Book(EXISTED_BOOK_ID, EXISTED_BOOK_TITLE, existedGenre, existedAuthorList, existBookComments));
     }
 
 
     @DisplayName("Проверка способности корректно добавлять книгу.")
     @Transactional
     @Test
-    void shouldCorrectAdd() throws AppServiceException {
+    void shouldCorrectAdd() {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
-        final Author existAuthor = new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", "Васильевич", "Гоголь");
+        final Author existAuthor = authorRepository.getById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
 
         BookBean bookBean = BookBean.builder()
                 .title(newTitle)
                 .genreTitle(newGenreTitle)
                 .authors(List.of(existAuthor))
+                .comments(new ArrayList<>())
                 .build();
         final Book createdBook = bookService.add(bookBean);
         assertThat(createdBook).isNotNull();
-        final Optional<Book> foundBookOpt = bookDao.getById(createdBook.getId());
+        final Optional<Book> foundBookOpt = bookRepository.getById(createdBook.getId());
 
         assertThat(foundBookOpt.isPresent()).isTrue();
         assertThat(foundBookOpt.get().getTitle()).isEqualTo(newTitle);
@@ -76,29 +90,30 @@ class BookServiceTest {
     @DisplayName("Проверка способности корректно удалять книгу.")
     @Transactional
     @Test
-    void delete() throws AppServiceException {
-        assertThat(bookDao.getById(expectedBook.getId()).isPresent()).isTrue();
+    void delete() {
+        assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isTrue();
         bookService.delete(expectedBook.getId());
-        assertThat(bookDao.getById(expectedBook.getId()).isPresent()).isFalse();
+        assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isFalse();
     }
 
     @DisplayName("Проверка способности корректно изменять название книги.")
     @Transactional
     @Test
-    void changeTitle() throws AppServiceException {
+    void changeTitle() {
         assertThat(expectedBook.getTitle()).isEqualTo(EXISTED_BOOK_TITLE);
         bookService.changeTitle(expectedBook.getId(), NEW_BOOK_TITLE);
 
-        final Optional<Book> optionalBook = bookDao.getById(expectedBook.getId());
+        final Optional<Book> optionalBook = bookRepository.getById(expectedBook.getId());
         assertThat(optionalBook.isPresent()).isTrue();
         optionalBook.map(d-> assertThat(d.getTitle()).isEqualTo(NEW_BOOK_TITLE));
     }
 
     @DisplayName("Проверка способности корректно получать все книги.")
+    @Transactional
     @Test
-    void shouldCorrectGetAll() throws AppServiceException {
+    void shouldCorrectGetAll() {
         final List<Book> bookList = bookService.getAll();
-        assertThat(bookList.size()).isEqualTo(2);
+        assertThat(bookList.size()).isEqualTo(10);
 
         final Optional<Book> bookOptional = bookList.stream().filter(d -> d.getId().equals(expectedBook.getId())).findFirst();
         assertThat(bookOptional.isPresent()).isTrue();
@@ -106,8 +121,9 @@ class BookServiceTest {
     }
 
     @DisplayName("Проверка способности корректно искать книги по названию.")
+    @Transactional
     @Test
-    void findByTitle() throws AppServiceException {
+    void findByTitle() {
         final List<Book> bookListByTitle = bookService.findByTitle(expectedBook.getTitle());
         assertThat(bookListByTitle.isEmpty()).isFalse();
         assertThat(bookListByTitle.size()).isEqualTo(1);

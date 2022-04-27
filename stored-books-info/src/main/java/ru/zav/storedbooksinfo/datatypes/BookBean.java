@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import ru.zav.storedbooksinfo.domain.Author;
+import ru.zav.storedbooksinfo.domain.BookComment;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 public class BookBean {
     private String title;
     private List<Author> authors;
+    private List<BookComment> comments;
     private String genreTitle;
 
     public void setTitle(String title) {

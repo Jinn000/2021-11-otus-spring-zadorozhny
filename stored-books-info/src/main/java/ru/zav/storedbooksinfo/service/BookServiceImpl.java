@@ -2,60 +2,52 @@ package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.zav.storedbooksinfo.dao.AuthorDao;
-import ru.zav.storedbooksinfo.dao.AuthorSetDao;
-import ru.zav.storedbooksinfo.dao.BookDao;
-import ru.zav.storedbooksinfo.dao.GenreDao;
+import org.springframework.transaction.annotation.Transactional;
+import ru.zav.storedbooksinfo.dao.BookRepository;
+import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
-import ru.zav.storedbooksinfo.utils.UuidGeneratorNoDashes;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class BookServiceImpl implements BookService {
-    private final BookDao bookDao;
-    private final GenreDao genreDao;
-    private final AuthorDao authorDao;
-    private final AuthorSetDao authorSetDao;
+    private final BookRepository bookRepository;
+    private final GenreRepository genreRepository;
 
     private final GenreService genreService;
 
+    /**Эмуляция залогиненого юзера*/
+    private static final String CURRENT_USER_NAME = "Гость";
 
+
+    @Transactional
     @Override
-    public Book add(@NotNull BookBean bookBean) throws AppServiceException {
-        final Optional<Genre> genreOptional;
+    public Book add(BookBean bookBean) {
         try {
-            genreOptional = genreDao.findByDescription(bookBean.getGenreTitle());
+            final Optional<Genre> genreOptional = genreRepository.findByDescription(bookBean.getGenreTitle());
+            final Genre genre = genreOptional.orElse(genreService.add(bookBean.getGenreTitle()));
+
+            return bookRepository.save(new Book(UUID.randomUUID().toString(), bookBean.getTitle(), genre, bookBean.getAuthors(), bookBean.getComments()));
         } catch (AppDaoException e) {
             throw new AppServiceException(String.format("Не удалось добавить книгу %s. Причина: %s", bookBean.toString(), e.getLocalizedMessage()), e);
         }
-        Genre genre = genreOptional.isPresent() ? genreOptional.get() : genreService.add(bookBean.getGenreTitle());
-
-
-        final Book newBook;
-        try {
-            newBook = new Book(new UuidGeneratorNoDashes().generateUuid(), bookBean.getTitle(), genre, bookBean.getAuthors());
-            bookDao.insert(newBook);
-        } catch (AppDaoException e) {
-            throw new AppServiceException(String.format("Не удалось добавить книгу %s. Причина: %s", bookBean.toString(), e.getLocalizedMessage()), e);
-        }
-        return newBook;
     }
 
+    @Transactional
     @Override
-    public int delete(@NotNull String bookId) throws AppServiceException {
+    public int delete(String bookId){
         try {
-            var deletedBooksCountOpt = bookDao.getById(bookId).map(Book::getId)
+            var deletedBooksCountOpt = bookRepository.getById(bookId).map(Book::getId)
                     .map(id -> {
                         try {
-                            return bookDao.deleteById(id);
+                            return bookRepository.deleteById(id);
                         } catch (AppDaoException e) {
                             e.printStackTrace();
                         }
@@ -67,57 +59,51 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Transactional
     @Override
-    public Book changeTitle(String bookId, String newTitle) throws AppServiceException {
+    public Book changeTitle(String bookId, String newTitle) {
         final Optional<Book> bookOptional;
         try {
-            bookOptional = bookDao.getById(bookId);
+            bookOptional = bookRepository.getById(bookId);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
 
-        var updatedCount = bookOptional.map(book -> {
-            final Book newBook = new Book(book.getId(), newTitle, book.getGenre(), book.getAuthors());
-            try {
-                return bookDao.insert(newBook);
-            } catch (AppDaoException e) {
-                e.printStackTrace();
-            }
-            return 0;
+        Book updatedBook = bookOptional.map(book -> {
+            book.setTitle(newTitle);
+            return bookRepository.save(book);
         }).orElseThrow(() -> new AppServiceException(String.format("Не удалось найти книгу в ID: %s", bookId)));
 
-        if(updatedCount.equals(0)) throw new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle));
+        if(!updatedBook.getTitle().equals(newTitle)) throw new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle));
 
         try {
-            return bookDao.getById(bookOptional.map(Book::getId)
-                    .orElseThrow(()-> new AppServiceException(String.format("Не удалось найти книгу c ID: %s", bookId)))
-            ).orElseThrow(()-> new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle)));
+            return bookOptional.map(Book::getId)
+                    .flatMap(bookRepository::getById)
+                    .orElseThrow(()-> new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle)));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<Book> getAll() throws AppServiceException {
-        final List<Book> bookList;
+    public List<Book> getAll() {
         try {
-            bookList = bookDao.readAll();
+            return bookRepository.readAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
-        return bookList;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<Book> findByTitle(String title) throws AppServiceException {
+    public List<Book> findByTitle(String title) {
         if(title == null) throw new AppServiceException("Ошибка! Не указано наименование книги для поиска.");
 
-        final List<Book> bookList;
         try {
-            bookList = bookDao.findByTitle(title);
+            return bookRepository.findByTitle(title);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
-        return bookList;
     }
 }
