@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Проверка DAO работы с Комментариями:")
 @Data
-@Import({BookRepositoryJpa.class})
 @DataJpaTest
 class BookCommentRepositoryJpaTest {
     @Autowired

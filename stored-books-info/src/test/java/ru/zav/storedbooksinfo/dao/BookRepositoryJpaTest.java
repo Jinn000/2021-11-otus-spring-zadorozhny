@@ -7,13 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
-import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
-import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,81 +27,12 @@ class BookRepositoryJpaTest {
     @Autowired
     private TestEntityManager em;
 
-
-    @DisplayName("Проверка получения Книги по ID.")
-    @Transactional(readOnly = true)
-    @Test
-    void shouldCorrectGetById() {
-        // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
-        final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", em.find(Book.class, EXISTED_BOOK_ID), "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", em.find(Book.class, EXISTED_BOOK_ID), "Не читал, но осуждаю."));
-
-        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
-
-        final Optional<Book> actualBookOpt = bookRepository.getById(EXISTED_BOOK_ID);
-
-        assertThat(actualBookOpt.isPresent());
-        assertThat(actualBookOpt.get()).usingRecursiveComparison().isEqualTo(expectedBook);
-    }
-
-    @DisplayName("Проверка удаления Книги по ID.")
-    @Transactional
-    @Test
-    void shouldCorrectDeleteById() {
-        // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Optional<Book> deletedBookOpt = bookRepository.getById(EXISTED_BOOK_ID);
-        assertThat(deletedBookOpt.isPresent()).isTrue();
-
-        deletedBookOpt.map(Book::getId).map(bookRepository::deleteById);
-
-        final Optional<Book> actualBookOpt = deletedBookOpt.map(Book::getId).flatMap(bookRepository::getById);
-        assertThat(actualBookOpt.isPresent()).isFalse();
-    }
-
-    @DisplayName("Проверка способности добавлять Книги.")
-    @Transactional
-    @Test
-    void shouldCorrectInsert() {
-        final Genre genre = new Genre(null,"Мистика");
-        final List<Author> authorList = List.of(new Author(null,"Николай", "Васильевич", "Гоголь"));
-        Book expectedBook = new Book(null, "Вечера на хуторе близ диканьки", genre, authorList, new ArrayList<>());
-        em.detach(expectedBook);
-
-        expectedBook = bookRepository.save(expectedBook);
-        final Optional<Book> actualBook = bookRepository.getById(expectedBook.getId());
-
-        assertThat(actualBook.isPresent()).isTrue();
-        assertThat(actualBook.get()).usingRecursiveComparison().isEqualTo(expectedBook);
-    }
-
-    @DisplayName("Проверка получения всех Книг.")
-    @Transactional(readOnly = true)
-    @Test
-    void shouldCorrectReadAll() {
-        final List<Book> bookList = bookRepository.readAll();
-        assertThat(bookList.size()).isEqualTo(10);
-
-        // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
-        final List<Author> authorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
-        final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", em.find(Book.class, EXISTED_BOOK_ID), "Not bad.")
-                , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", em.find(Book.class, EXISTED_BOOK_ID), "Не читал, но осуждаю."));
-
-        final Book expectedBook = new Book(EXISTED_BOOK_ID, "Вечера на хуторе близ диканьки", genre, authorList, existBookComments);
-        final Optional<Book> bookOpt = bookList.stream().filter(a -> a.getId().equals(EXISTED_BOOK_ID)).findFirst();
-
-        assertThat(bookOpt.isPresent()).isTrue();
-        assertThat(bookOpt.get()).usingRecursiveComparison().isEqualTo(expectedBook);
-    }
-
     @DisplayName("Проверка получения Книг по жанрам.")
     @Transactional(readOnly = true)
     @Test
     void shouldCorrectFindByGenre() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Optional<Book> expectedBook = bookRepository.getById(EXISTED_BOOK_ID);
+        final Optional<Book> expectedBook = Optional.ofNullable(bookRepository.getById(EXISTED_BOOK_ID));
         assertThat(expectedBook.isPresent()).isTrue();
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
 
@@ -124,7 +51,7 @@ class BookRepositoryJpaTest {
     @Test
     void shouldCorrectFindByTitle() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Optional<Book> expectedBook = bookRepository.getById(EXISTED_BOOK_ID);
+        final Optional<Book> expectedBook = Optional.ofNullable(bookRepository.getById(EXISTED_BOOK_ID));
         assertThat(expectedBook.isPresent()).isTrue();
 
         final List<Book> booksFind = bookRepository.findByTitle("Вечера на хуторе близ диканьки");

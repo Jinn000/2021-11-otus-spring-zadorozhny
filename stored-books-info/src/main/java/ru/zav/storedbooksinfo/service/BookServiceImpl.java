@@ -1,6 +1,7 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
@@ -44,11 +45,12 @@ public class BookServiceImpl implements BookService {
     @Override
     public int delete(String bookId){
         try {
-            var deletedBooksCountOpt = bookRepository.getById(bookId).map(Book::getId)
+            var deletedBooksCountOpt = Optional.ofNullable(bookRepository.getById(bookId)).map(Book::getId)
                     .map(id -> {
                         try {
-                            return bookRepository.deleteById(id);
-                        } catch (AppDaoException e) {
+                            bookRepository.deleteById(id);
+                            return 1;
+                        } catch (EmptyResultDataAccessException e) {
                             e.printStackTrace();
                         }
                         return 0;
@@ -64,7 +66,7 @@ public class BookServiceImpl implements BookService {
     public Book changeTitle(String bookId, String newTitle) {
         final Optional<Book> bookOptional;
         try {
-            bookOptional = bookRepository.getById(bookId);
+            bookOptional = Optional.ofNullable(bookRepository.getById(bookId));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -78,7 +80,7 @@ public class BookServiceImpl implements BookService {
 
         try {
             return bookOptional.map(Book::getId)
-                    .flatMap(bookRepository::getById)
+                    .map(bookRepository::getById)
                     .orElseThrow(()-> new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle)));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
@@ -89,7 +91,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getAll() {
         try {
-            return bookRepository.readAll();
+            return bookRepository.findAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
