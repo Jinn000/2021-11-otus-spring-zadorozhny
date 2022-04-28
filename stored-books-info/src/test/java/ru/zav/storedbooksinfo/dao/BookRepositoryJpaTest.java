@@ -6,13 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 import ru.zav.storedbooksinfo.domain.Genre;
-import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @DisplayName("Проверка DAO работы с Книгами:")
 @DataJpaTest
-@Import({BookRepositoryJpa.class, GenreRepository.class, AuthorRepositoryJpa.class})
 class BookRepositoryJpaTest {
     public static final String EXISTED_BOOK_ID = "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
     public static final String FAKE_EXISTED_BOOK_ID = "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10_FAKE";

@@ -1,19 +1,15 @@
 package ru.zav.storedbooksinfo.dao;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
-import ru.zav.storedbooksinfo.utils.AppDaoException;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @DisplayName("Проверка DAO работы с Авторами:")
-@Data
-@Import(AuthorRepositoryJpa.class)
 @DataJpaTest
 class AuthorRepositoryJpaTest {
     public static final String EXISTED_AUTHOR_ID_GOGOL = "A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10";
@@ -31,81 +25,6 @@ class AuthorRepositoryJpaTest {
     private AuthorRepository authorRepository;
     @Autowired
     private TestEntityManager em;
-
-
-    @DisplayName("Проверка получения Автора по ID")
-    @Transactional(readOnly = true)
-    @Test
-    void shouldCorrectGetById() {
-        // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
-        final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
-        final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
-        assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
-    }
-
-    @DisplayName("Проверка удаления Автора по ID")
-    @Transactional
-    @Test
-    void shouldCorrectDeleteById() {
-        // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
-        final Author deletedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
-        authorRepository.deleteById(EXISTED_AUTHOR_ID_GOGOL);
-        final Author actualPerson = authorRepository.getById(deletedAuthor.getId());
-        assertThat(actualPerson).isNull();
-    }
-
-    @DisplayName("Проверка способности добавлять автора.")
-    @Transactional
-    @Test
-    void shouldCorrectInsert() {
-        Author expectedAuthor = new Author(null,"Николай", "Николаевич", "Николаев");
-        expectedAuthor = authorRepository.save(expectedAuthor);
-        final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
-        assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
-    }
-
-    @DisplayName("Проверка способности изменить данные Автора.")
-    @Transactional
-    @Test
-    void shouldCorrectUpdate() {
-        final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Моголь");
-        authorRepository.save(expectedAuthor);
-        final Author actualPerson = authorRepository.getById(expectedAuthor.getId());
-        assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedAuthor);
-    }
-
-    @DisplayName("Проверка получения всех Авторов.")
-    @Transactional(readOnly = true)
-    @Test
-    void shouldCorrectReadAll() {
-        final List<Author> authorList = authorRepository.readAll();
-        assertThat(authorList.size()).isEqualTo(7);
-
-        // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
-        final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
-        final Optional<Author> authorOptional = authorList.stream().filter(a -> a.getId().equals("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10")).findFirst();
-        assertThat(authorOptional.isPresent()).isTrue();
-        assertThat(authorOptional.get()).usingRecursiveComparison().isEqualTo(expectedAuthor);
-    }
-
-/*    @DisplayName("Проверка очистки таблицы с Авторами.")
-    @Test
-    void shouldCorrectClearAll() {
-        final List<Author> storeAuthorList = authorDao.readAll();
-
-        authorDao.clearAll();
-        final List<Author> actualAuthorList = authorDao.readAll();
-        assertThat(actualAuthorList.isEmpty()).isTrue();
-
-        //восстановить данные
-        storeAuthorList.forEach(author -> {
-            try {
-                authorDao.insert(author);
-            } catch (AppDaoException e) {
-                log.error(e.getLocalizedMessage());
-            }
-        });
-    }*/
 
     @DisplayName("Проверка получения Автора по ФИО")
     @Transactional(readOnly = true)
@@ -118,7 +37,7 @@ class AuthorRepositoryJpaTest {
                 .lastName("Васильевич")
                 .familyName("Гоголь")
                 .build();
-        final Optional<Author> authorByFullName = authorRepository.findByFullName(fullName);
+        final Optional<Author> authorByFullName = authorRepository.findByFullName(fullName.getFirstName(), fullName.getLastName(), fullName.getFamilyName());
         assertThat(authorByFullName.isPresent()).isTrue();
         assertThat(authorByFullName.get()).usingRecursiveComparison().isEqualTo(expectedAuthor);
 
@@ -128,7 +47,7 @@ class AuthorRepositoryJpaTest {
                 .lastName("01")
                 .familyName("01")
                 .build();
-        final Optional<Author> fakeAuthorByFullName = authorRepository.findByFullName(fullNameFake);
+        final Optional<Author> fakeAuthorByFullName = authorRepository.findByFullName(fullNameFake.getFirstName(), fullNameFake.getLastName(), fullNameFake.getFamilyName());
         assertThat(fakeAuthorByFullName.isPresent()).isFalse();
     }
 }
