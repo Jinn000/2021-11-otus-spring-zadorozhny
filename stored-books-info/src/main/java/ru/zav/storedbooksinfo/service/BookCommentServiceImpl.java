@@ -26,19 +26,19 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional
     @Override
     public Optional<Book> addComment(String bookId, String comment) {
-        final Optional<Book> optionalBook = Optional.ofNullable(bookRepository.getById(bookId));
+        final Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         optionalBook.map(Book::getComments)
                 .map(list-> list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment)));
 
-        return optionalBook.map(bookRepository::save).map(Book::getId).map(bookRepository::getById);
+        return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::findById);
     }
 
     @Transactional
     @Override
     public Optional<Book> deleteComment(String commentId) {
 
-        var bookOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
+        var bookOpt = bookCommentRepository.findById(commentId)
                 .map(BookComment::getBook);
 
         try {
@@ -55,7 +55,7 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional
     @Override
     public Optional<Book> updateComment(String commentId, String newComment) {
-        final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
+        final Optional<BookComment> bookCommentOptional = bookCommentRepository.findById(commentId);
 
         return bookCommentOptional
                 .map(c -> {
@@ -69,6 +69,6 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional(readOnly = true)
     @Override
     public List<BookComment> readComments(String bookId) {
-        return Optional.ofNullable(bookRepository.getById(bookId)).map(Book::getComments).orElse(new ArrayList<>());
+        return bookRepository.findById(bookId).map(Book::getComments).orElse(new ArrayList<>());
     }
 }

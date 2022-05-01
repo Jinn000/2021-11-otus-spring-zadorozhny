@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,7 @@ class BookServiceTest {
     @BeforeEach
     private void beforeEach() {
         final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
-        this.existedBook = Optional.ofNullable(bookRepository.getById(EXISTED_BOOK_ID)).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
+        this.existedBook = bookRepository.findById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
         final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", this.existedBook, "Not bad.")
                 , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", this.existedBook, "Не читал, но осуждаю."));
@@ -69,23 +68,24 @@ class BookServiceTest {
     void shouldCorrectAdd() {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
-        final Author existAuthor = authorRepository.getById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
+        final Optional<Author> existAuthorOpt = authorRepository.findById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
+        assertThat(existAuthorOpt.isPresent()).isTrue();
 
         BookBean bookBean = BookBean.builder()
                 .title(newTitle)
                 .genreTitle(newGenreTitle)
-                .authors(List.of(existAuthor))
+                .authors(List.of(existAuthorOpt.get()))
                 .comments(new ArrayList<>())
                 .build();
         final Book createdBook = bookService.add(bookBean);
         assertThat(createdBook).isNotNull();
-        final Optional<Book> foundBookOpt = Optional.ofNullable(bookRepository.getById(createdBook.getId()));
+        final Optional<Book> foundBookOpt = bookRepository.findById(createdBook.getId());
 
         assertThat(foundBookOpt.isPresent()).isTrue();
         assertThat(foundBookOpt.get().getTitle()).isEqualTo(newTitle);
         assertThat(foundBookOpt.get().getGenre().getDescription()).isEqualTo(newGenreTitle);
         assertThat(foundBookOpt.get().getAuthors().size()).isEqualTo(1);
-        assertThat(foundBookOpt.get().getAuthors().get(0)).usingRecursiveComparison().isEqualTo(existAuthor);
+        assertThat(foundBookOpt.get().getAuthors().get(0)).usingRecursiveComparison().isEqualTo(existAuthorOpt);
     }
 
     @DisplayName("Проверка способности корректно удалять книгу.")
@@ -107,7 +107,7 @@ class BookServiceTest {
         assertThat(expectedBook.getTitle()).isEqualTo(EXISTED_BOOK_TITLE);
         bookService.changeTitle(expectedBook.getId(), NEW_BOOK_TITLE);
 
-        final Optional<Book> optionalBook = Optional.ofNullable(bookRepository.getById(expectedBook.getId()));
+        final Optional<Book> optionalBook = bookRepository.findById(expectedBook.getId());
         assertThat(optionalBook.isPresent()).isTrue();
         optionalBook.map(d-> assertThat(d.getTitle()).isEqualTo(NEW_BOOK_TITLE));
     }
@@ -119,7 +119,7 @@ class BookServiceTest {
         final List<Book> bookList = bookService.getAll();
         assertThat(bookList.size()).isEqualTo(10);
 
-        final Optional<Book> bookOptional = bookList.stream().filter(d -> d.getId().equals(expectedBook.getId())).map(book-> Hibernate.unproxy(book, Book.class)).findFirst();
+        final Optional<Book> bookOptional = bookList.stream().filter(d -> d.getId().equals(expectedBook.getId())).findFirst();
         assertThat(bookOptional.isPresent()).isTrue();
         bookOptional.map(d-> assertThat(d).usingRecursiveComparison().isEqualTo(expectedBook));
     }
@@ -131,6 +131,6 @@ class BookServiceTest {
         final List<Book> bookListByTitle = bookService.findByTitle(expectedBook.getTitle());
         assertThat(bookListByTitle.isEmpty()).isFalse();
         assertThat(bookListByTitle.size()).isEqualTo(1);
-        assertThat(Hibernate.unproxy(bookListByTitle.get(0), Book.class)).usingRecursiveComparison().isEqualTo(expectedBook);
+        assertThat(bookListByTitle.get(0)).usingRecursiveComparison().isEqualTo(expectedBook);
     }
 }

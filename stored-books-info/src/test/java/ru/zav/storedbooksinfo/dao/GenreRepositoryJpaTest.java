@@ -1,7 +1,6 @@
 package ru.zav.storedbooksinfo.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +28,9 @@ class GenreRepositoryJpaTest {
     void shouldCorrectGetById() {
         // Существующий в базе с рождения - 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10', 'Мистика'
         final Genre expectedGenre = new Genre("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10","Мистика");
-        final Genre actualGenre = genreRepository.getById(expectedGenre.getId());
-        Object unproxyedActualGenre = Hibernate.unproxy(actualGenre);
-
-        assertThat(unproxyedActualGenre).usingRecursiveComparison().isEqualTo(expectedGenre);
+        final Optional<Genre> actualGenreOpt = genreRepository.findById(expectedGenre.getId());
+        assertThat(actualGenreOpt.isPresent()).isTrue();
+        assertThat(actualGenreOpt.get()).usingRecursiveComparison().isEqualTo(expectedGenre);
     }
 
     @DisplayName("Проверка получения всех Жанров.")
@@ -51,8 +49,8 @@ class GenreRepositoryJpaTest {
     @Test
     void shouldCorrectDeleteById() {
         // Существующий в базе с рождения - 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10', 'Мистика'
-        final Genre existedGenre = genreRepository.getById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
-        assertThat(existedGenre).isNotNull();
+        final Optional<Genre> existedGenreOpt = genreRepository.findById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
+        assertThat(existedGenreOpt.isPresent()).isTrue();
         final int size = genreRepository.findAll().size();
 
         genreRepository.deleteById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
@@ -66,18 +64,17 @@ class GenreRepositoryJpaTest {
     @DisplayName("Проверка способности добавлять Жанр.")
     @Test
     void shouldCorrectInsert() {
-//        Genre expectedGenre = new Genre(null,"НовыйЖанр");
-        Genre expectedGenre = genreRepository.getById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
-        Genre unproxyedExpectedGenre = (Genre) Hibernate.unproxy(expectedGenre);
+        Optional<Genre> expectedGenreOpt = genreRepository.findById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
 
-        em.detach(unproxyedExpectedGenre);
-        unproxyedExpectedGenre.setId(null);
-        genreRepository.save(unproxyedExpectedGenre);
+        expectedGenreOpt.map(d-> {
+            d.setId(null);
+            return d;
+        }).map(genreRepository::save);
+        assertThat(expectedGenreOpt.isPresent()).isTrue();
 
-        final Genre actualGenre = genreRepository.getById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
-        Genre unproxyedActualGenre = (Genre) Hibernate.unproxy(actualGenre);
-
-        assertThat(unproxyedActualGenre).usingRecursiveComparison().isEqualTo(unproxyedExpectedGenre);
+        final Optional<Genre> actualGenre = genreRepository.findById("E181db60-9C0B-4EF8-BB6D-6BB9BD380A10");
+        assertThat(actualGenre.isPresent()).isTrue();
+        assertThat(actualGenre.get()).usingRecursiveComparison().isEqualTo(expectedGenreOpt.get());
     }
 
     @DisplayName("Проверка получения Автора по ФИО")

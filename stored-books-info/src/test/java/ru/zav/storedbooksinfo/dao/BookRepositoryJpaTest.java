@@ -32,7 +32,7 @@ class BookRepositoryJpaTest {
     @Test
     void shouldCorrectFindByGenre() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Optional<Book> expectedBook = Optional.ofNullable(bookRepository.getById(EXISTED_BOOK_ID));
+        final Optional<Book> expectedBook = bookRepository.findById(EXISTED_BOOK_ID);
         assertThat(expectedBook.isPresent()).isTrue();
         final Genre genre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
 
@@ -51,7 +51,7 @@ class BookRepositoryJpaTest {
     @Test
     void shouldCorrectFindByTitle() {
         // Существующий в базе с рождения - 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Вечера на хуторе близ диканьки', 'G0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'ASEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10'
-        final Optional<Book> expectedBook = Optional.ofNullable(bookRepository.getById(EXISTED_BOOK_ID));
+        final Optional<Book> expectedBook = bookRepository.findById(EXISTED_BOOK_ID);
         assertThat(expectedBook.isPresent()).isTrue();
 
         final List<Book> booksFind = bookRepository.findByTitle("Вечера на хуторе близ диканьки");

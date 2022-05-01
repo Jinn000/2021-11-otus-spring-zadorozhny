@@ -1,35 +1,20 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-  sql:
-    init:
-      mode: always
-      data-locations: test-data.sql
-      schema-locations: schema.sql
-
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: none
-    show-sql: false
-
-    properties:
-      hibernate:
-        format_sql: true
-
+  data:
+    mongodb:
+      database: book
 
   shell:
     interactive:
       enabled: true
-
   main:
     allow-circular-references: true
 
-  h2:
-    console:
-      path: /h2-console
-      settings:
-        web-allow-others: true
+
+mongock:
+  #runner-type: "ApplicationRunner" # default
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.zav.storedbooksinfo.changelog
 
 logging:
   level:

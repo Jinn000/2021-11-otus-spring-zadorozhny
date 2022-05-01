@@ -3,30 +3,18 @@ package ru.zav.storedbooksinfo.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Data
-@Entity
-@Table(name = "BOOK_COMMENT")
+@Document(collection = "book_comment")
 public class BookComment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
-
-    @Column(name = "NAME", length = 64)
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "BOOK_ID")
     private Book book;
-
-    @Column(name = "COMMENT", length = 4000)
     private String comment;
 
     @Override

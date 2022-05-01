@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,30 +15,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Data
-@Entity
-@Table(name = "BOOK")
+@Document(collection = "book")
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
-
-    @Column(name = "TITLE", length = 256)
     private String title;
-
-    @ManyToOne
-    @JoinColumn(name = "GENRE_ID")
     private Genre genre = null;
-
-    @ManyToMany(targetEntity = Author.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "BOOK_AUTHOR"
-            , joinColumns = @JoinColumn(name = "BOOK_ID")
-            , inverseJoinColumns = @JoinColumn(name = "AUTHOR_ID")
-    )
     private List<Author> authors;
-
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<BookComment> comments;
 
     public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) {

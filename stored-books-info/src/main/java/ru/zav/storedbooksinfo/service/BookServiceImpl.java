@@ -45,7 +45,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public int delete(String bookId){
         try {
-            var deletedBooksCountOpt = Optional.ofNullable(bookRepository.getById(bookId)).map(Book::getId)
+            var deletedBooksCountOpt = bookRepository.findById(bookId).map(Book::getId)
                     .map(id -> {
                         try {
                             bookRepository.deleteById(id);
@@ -66,7 +66,7 @@ public class BookServiceImpl implements BookService {
     public Book changeTitle(String bookId, String newTitle) {
         final Optional<Book> bookOptional;
         try {
-            bookOptional = Optional.ofNullable(bookRepository.getById(bookId));
+            bookOptional = bookRepository.findById(bookId);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -80,7 +80,7 @@ public class BookServiceImpl implements BookService {
 
         try {
             return bookOptional.map(Book::getId)
-                    .map(bookRepository::getById)
+                    .flatMap(bookRepository::findById)
                     .orElseThrow(()-> new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle)));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);

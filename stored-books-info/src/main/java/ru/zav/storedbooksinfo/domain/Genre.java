@@ -3,21 +3,16 @@ package ru.zav.storedbooksinfo.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Data
-@Entity
-@Table(name = "GENRE")
+@Document(collection = "genre")
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
-
-    @Column(name = "DESCRIPTION", length = 256)
     private String description;
 }
