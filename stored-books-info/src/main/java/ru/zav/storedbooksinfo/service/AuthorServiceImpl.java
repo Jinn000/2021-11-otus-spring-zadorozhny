@@ -21,7 +21,6 @@ import java.util.Optional;
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
-    @Transactional
     @Override
     public Author add(FullName fullName) {
         try {
@@ -32,7 +31,6 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(FullName fullName) {
         if(StringUtils.isBlank(fullName.getFirstName())) throw new AppServiceException("Ошибка! Не указано Имя автора.");

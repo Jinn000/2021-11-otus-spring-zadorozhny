@@ -6,7 +6,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
-import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.Genre;
@@ -22,19 +21,13 @@ import java.util.UUID;
 @Service
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
-    private final GenreRepository genreRepository;
-
     private final GenreService genreService;
 
-    /**Эмуляция залогиненого юзера*/
-    private static final String CURRENT_USER_NAME = "Гость";
 
-
-    @Transactional
     @Override
     public Book add(BookBean bookBean) {
         try {
-            final Optional<Genre> genreOptional = genreRepository.findByDescription(bookBean.getGenreTitle());
+            final Optional<Genre> genreOptional = genreService.findByDescription(bookBean.getGenreTitle());
             final Genre genre = genreOptional.orElse(genreService.add(bookBean.getGenreTitle()));
 
             return bookRepository.save(new Book(UUID.randomUUID().toString(), bookBean.getTitle(), genre, bookBean.getAuthors(), bookBean.getComments()));
@@ -43,7 +36,6 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(String bookId){
         try {
@@ -89,7 +81,6 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> getAll() {
         try {
@@ -99,7 +90,6 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> findByTitle(String title) {
         if(title == null) throw new AppServiceException("Ошибка! Не указано наименование книги для поиска.");

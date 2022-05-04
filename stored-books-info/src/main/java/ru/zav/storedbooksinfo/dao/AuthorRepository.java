@@ -1,7 +1,6 @@
 package ru.zav.storedbooksinfo.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.query.Param;
 import ru.zav.storedbooksinfo.domain.Author;
 
 import java.util.Optional;

@@ -22,7 +22,6 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
 
-    @Transactional
     @Override
     public Genre add(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для добавляемого жанра.");
@@ -35,7 +34,6 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для удаляемого жанра.");
@@ -70,7 +68,6 @@ public class GenreServiceImpl implements GenreService {
                 .orElse(0);
     }
 
-    @Transactional
     @Override
     public Genre rename(String oldDescription, String newDescription) {
         if(StringUtils.isBlank(oldDescription) || StringUtils.isBlank(newDescription)) throw new AppServiceException("Ошибка! Не указан Description для переименования жанра.");
@@ -100,7 +97,6 @@ public class GenreServiceImpl implements GenreService {
         return updatedGenre;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Genre> getAll() {
         try {
@@ -110,7 +106,6 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<Genre> findByDescription(String description) {
         try {
