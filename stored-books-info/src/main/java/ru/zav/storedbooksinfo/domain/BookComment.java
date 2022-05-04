@@ -3,34 +3,52 @@ package ru.zav.storedbooksinfo.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Data
-@Entity
-@Table(name = "BOOK_COMMENT")
+@Document(collection = "book_comment")
 public class BookComment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
-
-    @Column(name = "NAME", length = 64)
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "BOOK_ID")
+    @DBRef
     private Book book;
-
-    @Column(name = "COMMENT", length = 4000)
     private String comment;
 
     @Override
     public String toString() {
         return String.format("%s %s", name, comment);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BookComment that = (BookComment) o;
+
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .append(name, that.name)
+                .append(book.getId(), that.book.getId())
+                .append(comment, that.comment)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(name)
+                .append(book.getId())
+                .append(comment)
+                .toHashCode();
     }
 }

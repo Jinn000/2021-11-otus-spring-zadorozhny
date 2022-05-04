@@ -26,26 +26,33 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional
     @Override
     public Optional<Book> addComment(String bookId, String comment) {
-        final Optional<Book> optionalBook = bookRepository.getById(bookId);
+        final Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         optionalBook.map(Book::getComments)
-                .map(list-> list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment)));
+                .map(list-> {
+                    list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment));
+                    return list;
+                });
 
-        return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::getById);
+        return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::findById);
     }
 
     @Transactional
     @Override
     public Optional<Book> deleteComment(String commentId) {
 
-        var bookOpt = Optional.ofNullable(bookCommentRepository.getById(commentId))
+        var bookOpt = bookCommentRepository.findById(commentId)
                 .map(BookComment::getBook);
 
         try {
             List<BookComment> bookComments = bookOpt.map(Book::getComments).orElse(new ArrayList<>());
             bookComments.stream()
                     .filter(c-> c.getId().equals(commentId))
-                    .findFirst().map(bookComments::remove);
+                    .findFirst()
+                    .map(bc-> {
+                        bookCommentRepository.delete(bc);
+                        return bc;
+                    });
         } catch (Exception e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -55,7 +62,7 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional
     @Override
     public Optional<Book> updateComment(String commentId, String newComment) {
-        final Optional<BookComment> bookCommentOptional = Optional.ofNullable(bookCommentRepository.getById(commentId));
+        final Optional<BookComment> bookCommentOptional = bookCommentRepository.findById(commentId);
 
         return bookCommentOptional
                 .map(c -> {
@@ -69,6 +76,6 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Transactional(readOnly = true)
     @Override
     public List<BookComment> readComments(String bookId) {
-        return bookRepository.getById(bookId).map(Book::getComments).orElse(new ArrayList<>());
+        return bookRepository.findById(bookId).map(Book::getComments).orElse(new ArrayList<>());
     }
 }

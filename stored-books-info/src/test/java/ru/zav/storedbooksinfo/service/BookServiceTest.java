@@ -2,16 +2,17 @@ package ru.zav.storedbooksinfo.service;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import ru.zav.storedbooksinfo.dao.AuthorRepository;
-import ru.zav.storedbooksinfo.dao.BookRepository;
+import org.springframework.context.annotation.Import;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Author;
 import ru.zav.storedbooksinfo.domain.Book;
@@ -30,6 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @DisplayName("Тестирование сервиса работы с книгами:")
 @Data
+@RequiredArgsConstructor
+@ImportAutoConfiguration(exclude = EmbeddedMongoAutoConfiguration.class)
+@Import({BookServiceImpl.class, AuthorServiceImpl.class})
 @SpringBootTest
 class BookServiceTest {
     public static final String EXISTED_BOOK_TITLE = "Вечера на хуторе близ диканьки";
@@ -42,9 +46,7 @@ class BookServiceTest {
     @Autowired
     private BookService bookService;
     @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
+    private AuthorService authorService;
 
     @Setter @Getter
     private Book expectedBook;
@@ -53,7 +55,7 @@ class BookServiceTest {
     @BeforeEach
     private void beforeEach() {
         final Genre existedGenre = new Genre(EXISTED_GENRE_ID_MYSTIC,"Мистика");
-        this.existedBook = bookRepository.getById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
+        this.existedBook = bookService.findById(EXISTED_BOOK_ID).orElseThrow(()-> new AppServiceException(String.format("Не удалось прочитать книгу с ID: %s", EXISTED_BOOK_ID)));
         final List<Author> existedAuthorList = List.of(new Author("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10","Николай", "Васильевич", "Гоголь"));
         final List<BookComment> existBookComments = Arrays.asList(new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10", "Николай", this.existedBook, "Not bad.")
                 , new BookComment("BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11", "Сергей", this.existedBook, "Не читал, но осуждаю."));
@@ -63,53 +65,53 @@ class BookServiceTest {
 
 
     @DisplayName("Проверка способности корректно добавлять книгу.")
-    @Transactional
     @Test
     void shouldCorrectAdd() {
         final String newTitle = "Новая книга";
         final String newGenreTitle = "НовыйЖанр";
-        final Author existAuthor = authorRepository.getById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
+        final Optional<Author> existAuthorOpt = authorService.findById("A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10");
+        assertThat(existAuthorOpt.isPresent()).isTrue();
 
         BookBean bookBean = BookBean.builder()
                 .title(newTitle)
                 .genreTitle(newGenreTitle)
-                .authors(List.of(existAuthor))
+                .authors(List.of(existAuthorOpt.get()))
                 .comments(new ArrayList<>())
                 .build();
         final Book createdBook = bookService.add(bookBean);
         assertThat(createdBook).isNotNull();
-        final Optional<Book> foundBookOpt = bookRepository.getById(createdBook.getId());
+        final Optional<Book> foundBookOpt = bookService.findById(createdBook.getId());
 
         assertThat(foundBookOpt.isPresent()).isTrue();
         assertThat(foundBookOpt.get().getTitle()).isEqualTo(newTitle);
         assertThat(foundBookOpt.get().getGenre().getDescription()).isEqualTo(newGenreTitle);
         assertThat(foundBookOpt.get().getAuthors().size()).isEqualTo(1);
-        assertThat(foundBookOpt.get().getAuthors().get(0)).usingRecursiveComparison().isEqualTo(existAuthor);
+        assertThat(foundBookOpt.get().getAuthors().get(0)).usingRecursiveComparison().isEqualTo(existAuthorOpt);
     }
 
     @DisplayName("Проверка способности корректно удалять книгу.")
-    @Transactional
     @Test
     void delete() {
-        assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isTrue();
+        assertThat(bookService.findById(expectedBook.getId()).isEmpty()).isFalse();
         bookService.delete(expectedBook.getId());
-        assertThat(bookRepository.getById(expectedBook.getId()).isPresent()).isFalse();
+        var isGone = bookService.getAll().stream()
+                .map(Book::getId)
+                .noneMatch(expectedBook.getId()::equals);
+        assertThat(isGone).isTrue();
     }
 
     @DisplayName("Проверка способности корректно изменять название книги.")
-    @Transactional
     @Test
     void changeTitle() {
         assertThat(expectedBook.getTitle()).isEqualTo(EXISTED_BOOK_TITLE);
         bookService.changeTitle(expectedBook.getId(), NEW_BOOK_TITLE);
 
-        final Optional<Book> optionalBook = bookRepository.getById(expectedBook.getId());
+        final Optional<Book> optionalBook = bookService.findById(expectedBook.getId());
         assertThat(optionalBook.isPresent()).isTrue();
         optionalBook.map(d-> assertThat(d.getTitle()).isEqualTo(NEW_BOOK_TITLE));
     }
 
     @DisplayName("Проверка способности корректно получать все книги.")
-    @Transactional
     @Test
     void shouldCorrectGetAll() {
         final List<Book> bookList = bookService.getAll();
@@ -121,7 +123,6 @@ class BookServiceTest {
     }
 
     @DisplayName("Проверка способности корректно искать книги по названию.")
-    @Transactional
     @Test
     void findByTitle() {
         final List<Book> bookListByTitle = bookService.findByTitle(expectedBook.getTitle());

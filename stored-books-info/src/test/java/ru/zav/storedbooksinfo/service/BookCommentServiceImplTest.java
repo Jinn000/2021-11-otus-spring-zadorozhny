@@ -7,9 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.BookComment;
 
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @Data
 @RequiredArgsConstructor
+@ImportAutoConfiguration(exclude = EmbeddedMongoAutoConfiguration.class)
 @Import({BookServiceImpl.class, BookCommentServiceImpl.class})
 @SpringBootTest
 class BookCommentServiceImplTest {
@@ -30,7 +32,7 @@ class BookCommentServiceImplTest {
     @Autowired
     private BookService bookService;
     @Autowired
-    private BookCommentServiceImpl bookCommentService;
+    private BookCommentService bookCommentService;
 
     private BookComment existedBookComment;
     private BookComment expectedBookComment;
@@ -55,7 +57,6 @@ class BookCommentServiceImplTest {
 
     @DisplayName("Проверка добавления комментария к книге.")
     @Test
-    @Transactional
     void shouldCorrectAddComment() {
         final Book book = bookService.findByTitle("Вечера на хуторе близ диканьки").get(0);
 
@@ -66,12 +67,11 @@ class BookCommentServiceImplTest {
         Optional<BookComment> bookCommentOpt = actualBookOpt.map(Book::getComments).map(list-> list.get(list.size()-1));
         assertThat(bookCommentOpt.isPresent()).isTrue();
 
-        assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedNewBookComment);
+        assertThat(bookCommentOpt.get()).usingRecursiveComparison().ignoringFields("id", "book").isEqualTo(expectedNewBookComment);
     }
 
     @DisplayName("Проверка удаления комментария по его ID.")
     @Test
-    @Transactional
     void shouldCorrectDeleteComment() {
         final Optional<Book> optionalBook = bookCommentService.deleteComment(EXISTED_COMMENT_ID_NIKOLAY);
 
@@ -84,7 +84,6 @@ class BookCommentServiceImplTest {
 
     @DisplayName("Проверка редактирования комментария к книге.")
     @Test
-    @Transactional
     void shouldCorrectUpdateComment() {
         final String newCommentText = "newCommentText";
         final Optional<Book> bookOptional = bookCommentService.updateComment(EXISTED_COMMENT_ID_NIKOLAY, newCommentText);
@@ -99,7 +98,6 @@ class BookCommentServiceImplTest {
 
     @DisplayName("Проверка получения всех комментариев к книге.")
     @Test
-    @Transactional
     void shouldCorrectReadComments() {
         final List<BookComment> commentList = bookCommentService.readComments(EXISTED_BOOK_ID);
         assertThat(commentList.size()).isEqualTo(2);

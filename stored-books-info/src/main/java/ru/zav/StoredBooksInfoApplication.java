@@ -1,17 +1,14 @@
 package ru.zav;
 
-import org.h2.tools.Console;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.sql.SQLException;
-
+@EnableMongoRepositories
 @SpringBootApplication
 public class StoredBooksInfoApplication {
 
-	public static void main(String[] args) throws SQLException {
-		Console.main(args);
-
+	public static void main(String[] args) {
 		SpringApplication.run(StoredBooksInfoApplication.class, args);
 	}
 

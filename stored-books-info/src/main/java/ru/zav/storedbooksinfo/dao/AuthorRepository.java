@@ -1,17 +1,17 @@
 package ru.zav.storedbooksinfo.dao;
 
-import ru.zav.storedbooksinfo.datatypes.FullName;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.zav.storedbooksinfo.domain.Author;
-import ru.zav.storedbooksinfo.utils.AppDaoException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface AuthorRepository {
-    Author getById(String id);
-    int deleteById(String id);
-    Author save(Author author);
-    List<Author> readAll() ;
-    Optional<Author> findByFullName(FullName fullName);
+public interface AuthorRepository extends MongoRepository<Author, String> {
+
+    @Query("{'firstName' : :#{#firstName}, 'lastName' : :#{#lastName}, 'familyName' : :#{#familyName}}")
+    Optional<Author> findByFullName(@Param("firstName") String firstName, @Param("lastName") String lastName, @Param("familyName") String familyName);
+    List<Author> findByFirstName(String firstName);
+    List<Author> findByFamilyName(String familyName);
 }
