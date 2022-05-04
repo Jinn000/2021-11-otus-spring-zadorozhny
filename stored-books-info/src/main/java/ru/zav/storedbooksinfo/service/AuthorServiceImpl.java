@@ -91,4 +91,13 @@ public class AuthorServiceImpl implements AuthorService {
             throw new AppServiceException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public Optional<Author> findById(String id) {
+        try {
+            return authorRepository.findById(id);
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
+    }
 }

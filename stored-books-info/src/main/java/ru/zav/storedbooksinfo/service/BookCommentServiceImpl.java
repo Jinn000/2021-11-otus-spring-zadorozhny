@@ -29,7 +29,10 @@ public class BookCommentServiceImpl implements BookCommentService {
         final Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         optionalBook.map(Book::getComments)
-                .map(list-> list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment)));
+                .map(list-> {
+                    list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment));
+                    return list;
+                });
 
         return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::findById);
     }
@@ -45,7 +48,11 @@ public class BookCommentServiceImpl implements BookCommentService {
             List<BookComment> bookComments = bookOpt.map(Book::getComments).orElse(new ArrayList<>());
             bookComments.stream()
                     .filter(c-> c.getId().equals(commentId))
-                    .findFirst().map(bookComments::remove);
+                    .findFirst()
+                    .map(bc-> {
+                        bookCommentRepository.delete(bc);
+                        return bc;
+                    });
         } catch (Exception e) {
             throw new AppServiceException(e.getMessage(), e);
         }

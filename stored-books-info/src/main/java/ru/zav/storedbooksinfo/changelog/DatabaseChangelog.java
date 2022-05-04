@@ -11,12 +11,12 @@ import java.util.List;
 @ChangeLog
 public class DatabaseChangelog {
     @ChangeSet(order = "0001", id = "dropDb_0105220207", author = "zav", runAlways = true)
-    public void dropDb_0105220207(MongoDatabase db) {
+    public void dropDb(MongoDatabase db) {
         db.drop();
     }
 
     @ChangeSet(order = "0002", id = "fillDb_0105220208", author = "zav")
-    public void fillDb_0105220208(MongoDatabase db) {
+    public void fillCollectionGenre(MongoDatabase db) {
         MongoCollection<Document> genreCollection = db.getCollection("genre");
         List<Document> docs = List.of(
                 new Document().append("_id", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10").append("description", "Мистика")
@@ -35,7 +35,7 @@ INSERT INTO AUTHOR (id, FIRST_NAME, LAST_NAME, FAMILY_NAME) values('A0EEBC99-9C0
 INSERT INTO AUTHOR (id, FIRST_NAME, LAST_NAME, FAMILY_NAME) values('A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A16', 'Питер', '', 'Страуб');
 * */
     @ChangeSet(order = "0003", id = "fillDb_0105220220", author = "zav")
-    public void fillDb_0105220220(MongoDatabase db) {
+    public void fillCollectionAuthor(MongoDatabase db) {
         MongoCollection<Document> authorCollection = db.getCollection("author");
         List<Document> docs = List.of(
                 new Document().append("_id", "A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("firstName", "Николай").append("lastName", "Васильевич").append("familyName", "Гоголь")
@@ -53,11 +53,23 @@ INSERT INTO BOOK_COMMENT (id, NAME, BOOK_ID, COMMENT) values('BCEEBC99-9C0B-4EF8
 INSERT INTO BOOK_COMMENT (id, NAME, BOOK_ID, COMMENT) values('BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11', 'Сергей', 'B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Не читал, но осуждаю.');
 * */
     @ChangeSet(order = "0004", id = "fillDb_0105220230", author = "zav")
-    public void fillDb_0105220230(MongoDatabase db) {
+    public void filCollectionComment(MongoDatabase db) {
         MongoCollection<Document> commentCollection = db.getCollection("book_comment");
+
+        /*Книги*/
+        final String B_BB9BD380A10 = "{\"$ref\": \"book\",\"$id\": \"B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10\",\"$db\": \"\"}";
+
         List<Document> docs = List.of(
-                new Document().append("_id", "BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("name", "Николай").append("bookId", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("comment", "Not bad.")
-                ,new Document().append("_id", "BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11").append("name", "Сергей").append("bookId", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("comment", "Не читал, но осуждаю."));
+                new Document().append("_id", "BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10")
+                        .append("name", "Николай")
+                        .append("bookId", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10")
+                        .append("comment", "Not bad.")
+                        .append("book", Document.parse(B_BB9BD380A10))
+                ,new Document().append("_id", "BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11")
+                        .append("name", "Сергей")
+                        .append("bookId", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10")
+                        .append("comment", "Не читал, но осуждаю.")
+                        .append("book", Document.parse(B_BB9BD380A10)));
         commentCollection.insertMany(docs);
     }
 
@@ -73,21 +85,50 @@ INSERT INTO BOOK (id, TITLE, GENRE_ID) values('B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380
 INSERT INTO BOOK (id, TITLE, GENRE_ID) values('B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A18', 'Заживо погребенные', 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10');
 INSERT INTO BOOK (id, TITLE, GENRE_ID) values('B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A19', 'Талисман', 'E181db60-9C0B-4EF8-BB6D-6BB9BD380A10');
 * */
-
     @ChangeSet(order = "0005", id = "fillDb_0105220235", author = "zav")
     public void fillCollectionBook(MongoDatabase db) {
         MongoCollection<Document> bookCollection = db.getCollection("book");
+
+        /*Жанры*/
+        Document myst = new Document().append("_id", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10").append("description", "Мистика");
+        Document philosophy = new Document().append("_id", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A11").append("description", "Философия");
+
+        /*Авторы*/
+        final String A_BB9BD380A10 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10\",\"$db\": \"\"}";
+        final String A_BB9BD380A11 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A11\",\"$db\": \"\"}";
+        final String A_BB9BD380A12 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A12\",\"$db\": \"\"}";
+        final String A_BB9BD380A13 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A13\",\"$db\": \"\"}";
+        final String A_BB9BD380A14 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A14\",\"$db\": \"\"}";
+        final String A_BB9BD380A15 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A15\",\"$db\": \"\"}";
+        final String A_BB9BD380A16 = "{\"$ref\": \"author\",\"$id\": \"A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A16\",\"$db\": \"\"}";
+        List<Document> BB9BD380A10 = List.of(Document.parse(A_BB9BD380A10));
+        List<Document> BB9BD380A11 = List.of(Document.parse(A_BB9BD380A11), Document.parse(A_BB9BD380A12));
+        List<Document> BB9BD380A12 = List.of(Document.parse(A_BB9BD380A13));
+        List<Document> BB9BD380A13 = List.of(Document.parse(A_BB9BD380A14));
+        List<Document> BB9BD380A14 = List.of(Document.parse(A_BB9BD380A13));
+        List<Document> BB9BD380A15 = List.of(Document.parse(A_BB9BD380A13));
+        List<Document> BB9BD380A16 = List.of(Document.parse(A_BB9BD380A13));
+        List<Document> BB9BD380A17 = List.of(Document.parse(A_BB9BD380A13));
+        List<Document> BB9BD380A18 = List.of(Document.parse(A_BB9BD380A15));
+        List<Document> BB9BD380A19 = List.of(Document.parse(A_BB9BD380A13), Document.parse(A_BB9BD380A16));
+
+        /*Комментарии*/
+        final String COM_BB9BD380A10 = "{\"$ref\": \"book_comment\",\"$id\": \"BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A10\",\"$db\": \"\"}";
+        final String COM_BB9BD380A11 = "{\"$ref\": \"book_comment\",\"$id\": \"BCEEBC99-9C0B-4EF8-BB6D-6BB9BD380A11\",\"$db\": \"\"}";
+        List<Document> BC_BB9BD380A10 = List.of(Document.parse(COM_BB9BD380A10), Document.parse(COM_BB9BD380A11));
+
+        /*Наполнение книг*/
         List<Document> docs = List.of(
-                new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("title", "Вечера на хуторе близ диканьки").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A11").append("title", "Чапаев и Пустота").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A11")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A12").append("title", "Сияние").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A13").append("title", "Мастер и Маргарита").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A14").append("title", "Зеленая миля").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A15").append("title", "Оно").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A16").append("title", "Доктор Сон").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A17").append("title", "Буря столетия").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A18").append("title", "Заживо погребенные").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10")
-                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A19").append("title", "Талисман").append("GENRE_ID", "E181db60-9C0B-4EF8-BB6D-6BB9BD380A10"));
+                new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10").append("title", "Вечера на хуторе близ диканьки").append("genre", myst).append("authors", BB9BD380A10).append("comments", BC_BB9BD380A10)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A11").append("title", "Чапаев и Пустота").append("genre", philosophy).append("authors", BB9BD380A11)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A12").append("title", "Сияние").append("genre", myst).append("authors", BB9BD380A12)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A13").append("title", "Мастер и Маргарита").append("genre", myst).append("authors", BB9BD380A13)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A14").append("title", "Зеленая миля").append("genre", myst).append("authors", BB9BD380A14)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A15").append("title", "Оно").append("genre", myst).append("authors", BB9BD380A15)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A16").append("title", "Доктор Сон").append("genre", myst).append("authors", BB9BD380A16)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A17").append("title", "Буря столетия").append("genre", myst).append("authors", BB9BD380A17)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A18").append("title", "Заживо погребенные").append("genre", myst).append("authors", BB9BD380A18)
+                ,new Document().append("_id", "B0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A19").append("title", "Талисман").append("genre", myst).append("authors", BB9BD380A19));
         bookCollection.insertMany(docs);
     }
 }

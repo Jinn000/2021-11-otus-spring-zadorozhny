@@ -24,9 +24,6 @@ public class BookServiceImpl implements BookService {
 
     private final GenreService genreService;
 
-    /**Эмуляция залогиненого юзера*/
-    private static final String CURRENT_USER_NAME = "Гость";
-
 
     @Transactional
     @Override
@@ -104,6 +101,18 @@ public class BookServiceImpl implements BookService {
 
         try {
             return bookRepository.findByTitle(title);
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Book> findById(String id) {
+        if(id == null) throw new AppServiceException("Ошибка! Не указан id книги для поиска.");
+
+        try {
+            return bookRepository.findById(id);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }

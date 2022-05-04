@@ -4,6 +4,8 @@ import lombok.Data;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
@@ -15,14 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Проверка DAO работы с Комментариями:")
 @Data
-@DataJpaTest
-class BookCommentRepositoryJpaTest {
+@DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+class BookCommentRepositoryTest {
     @Autowired
     private BookCommentRepository bookCommentRepository;
     @Autowired
     private BookRepository bookRepository;
-    @Autowired
-    private TestEntityManager em;
 
     private BookComment expectedBookComment;
 

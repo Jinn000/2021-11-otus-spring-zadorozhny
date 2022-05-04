@@ -12,4 +12,5 @@ public interface AuthorService {
     Author rename(FullName oldName, FullName newName);
     List<Author> getAll();
     Optional<Author> findByFullName(FullName fullName);
+    Optional<Author> findById(String id);
 }

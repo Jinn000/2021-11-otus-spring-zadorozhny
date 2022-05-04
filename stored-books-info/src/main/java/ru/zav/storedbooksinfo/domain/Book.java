@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
 
@@ -21,7 +22,9 @@ public class Book {
     private String id;
     private String title;
     private Genre genre = null;
+    @DBRef
     private List<Author> authors;
+    @DBRef
     private List<BookComment> comments;
 
     public static Book generateBook(String title, Genre genre, List<Author> authors, List<BookComment> comments) {
