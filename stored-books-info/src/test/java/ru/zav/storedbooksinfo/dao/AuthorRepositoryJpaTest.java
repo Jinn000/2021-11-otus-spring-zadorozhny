@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.datatypes.FullName;
 import ru.zav.storedbooksinfo.domain.Author;
@@ -23,8 +22,6 @@ class AuthorRepositoryJpaTest {
 
     @Autowired
     private AuthorRepository authorRepository;
-    @Autowired
-    private TestEntityManager em;
 
     @DisplayName("Проверка получения Автора по ФИО")
     @Transactional(readOnly = true)
@@ -32,12 +29,8 @@ class AuthorRepositoryJpaTest {
     void shouldCorrectFindByFullName() {
         // Существующий в базе с рождения - 'A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A10', 'Николай', 'Васильевич', 'Гоголь'
         final Author expectedAuthor = new Author(EXISTED_AUTHOR_ID_GOGOL,"Николай", "Васильевич", "Гоголь");
-        final FullName fullName = FullName.builder()
-                .firstName("Николай")
-                .lastName("Васильевич")
-                .familyName("Гоголь")
-                .build();
-        final Optional<Author> authorByFullName = authorRepository.findByFullName(fullName.getFirstName(), fullName.getLastName(), fullName.getFamilyName());
+
+        final Optional<Author> authorByFullName = authorRepository.findByFirstNameAndLastNameAndFamilyName(expectedAuthor.getFirstName(), expectedAuthor.getLastName(), expectedAuthor.getFamilyName());
         assertThat(authorByFullName.isPresent()).isTrue();
         assertThat(authorByFullName.get()).usingRecursiveComparison().isEqualTo(expectedAuthor);
 
@@ -47,7 +40,7 @@ class AuthorRepositoryJpaTest {
                 .lastName("01")
                 .familyName("01")
                 .build();
-        final Optional<Author> fakeAuthorByFullName = authorRepository.findByFullName(fullNameFake.getFirstName(), fullNameFake.getLastName(), fullNameFake.getFamilyName());
+        final Optional<Author> fakeAuthorByFullName = authorRepository.findByFirstNameAndLastNameAndFamilyName(fullNameFake.getFirstName(), fullNameFake.getLastName(), fullNameFake.getFamilyName());
         assertThat(fakeAuthorByFullName.isPresent()).isFalse();
     }
 }

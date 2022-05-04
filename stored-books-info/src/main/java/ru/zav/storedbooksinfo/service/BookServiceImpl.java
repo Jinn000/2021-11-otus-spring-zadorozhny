@@ -1,6 +1,7 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookServiceImpl implements BookService {
@@ -51,7 +53,7 @@ public class BookServiceImpl implements BookService {
                             bookRepository.deleteById(id);
                             return 1;
                         } catch (EmptyResultDataAccessException e) {
-                            e.printStackTrace();
+                            log.error(e.getLocalizedMessage());
                         }
                         return 0;
                     });

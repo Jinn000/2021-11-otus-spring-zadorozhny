@@ -1,6 +1,7 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
@@ -51,7 +53,7 @@ public class GenreServiceImpl implements GenreService {
             try {
                 return !isUsed(genre);
             } catch (AppServiceException e) {
-                e.printStackTrace();
+                log.error(e.getLocalizedMessage());
             }
             return false;
         })
@@ -61,7 +63,7 @@ public class GenreServiceImpl implements GenreService {
                         genreRepository.deleteById(id);
                         return 1;
                     } catch (EmptyResultDataAccessException e) {
-                        e.printStackTrace();
+                        log.error(e.getLocalizedMessage());
                     }
                     return 0;
                 })
@@ -87,7 +89,7 @@ public class GenreServiceImpl implements GenreService {
             try {
                 return genreRepository.save(new Genre(genre.getId(), newDescriptionTrimmed));
             } catch (AppDaoException e) {
-                e.printStackTrace();
+                log.error(e.getLocalizedMessage());
             }
             return genre;
         })
