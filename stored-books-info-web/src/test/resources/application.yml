@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+  sql:
+    init:
+      mode: always
+      data-locations: test-data.sql
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  shell:
+    interactive:
+      enabled: false
+
+  main:
+    allow-circular-references: true
+
+  h2:
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+logging:
+  level:
+    root: ERROR
