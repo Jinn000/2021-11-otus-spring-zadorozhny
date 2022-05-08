@@ -1,7 +1,9 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.AuthorRepository;
@@ -13,12 +15,12 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
-    @Transactional
     @Override
     public Author add(FullName fullName) {
         try {
@@ -29,7 +31,6 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(FullName fullName) {
         if(StringUtils.isBlank(fullName.getFirstName())) throw new AppServiceException("Ошибка! Не указано Имя автора.");
@@ -38,7 +39,7 @@ public class AuthorServiceImpl implements AuthorService {
 
         final Optional<Author> authorOptional;
         try {
-            authorOptional = authorRepository.findByFullName(fullName);
+            authorOptional = authorRepository.findByFirstNameAndLastNameAndFamilyName(fullName.getFirstName(), fullName.getLastName(), fullName.getFamilyName());
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -46,10 +47,12 @@ public class AuthorServiceImpl implements AuthorService {
         return authorOptional.map(Author::getId)
                 .map(id -> {
                     try {
-                        return authorRepository.deleteById(id);
-                    } catch (AppDaoException e) {
-                        return 0;
+                        authorRepository.deleteById(id);
+                        return 1;
+                    } catch (EmptyResultDataAccessException e) {
+                        log.error(e.getLocalizedMessage());
                     }
+                    return 0;
                 }).orElse(0);
     }
 
@@ -58,7 +61,7 @@ public class AuthorServiceImpl implements AuthorService {
     public Author rename(FullName oldName, FullName newName) {
         Optional<Author> authorOptional;
         try {
-            authorOptional = authorRepository.findByFullName(oldName);
+            authorOptional = authorRepository.findByFirstNameAndLastNameAndFamilyName(oldName.getFirstName(), oldName.getLastName(), oldName.getFamilyName());
         } catch (AppDaoException e) {
             authorOptional = Optional.empty();
         }
@@ -74,7 +77,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public List<Author> getAll() {
         try {
-            return authorRepository.readAll();
+            return authorRepository.findAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -83,7 +86,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Optional<Author> findByFullName(FullName fullName) {
         try {
-            return authorRepository.findByFullName(fullName);
+            return authorRepository.findByFirstNameAndLastNameAndFamilyName(fullName.getFirstName(), fullName.getLastName(), fullName.getFamilyName());
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }

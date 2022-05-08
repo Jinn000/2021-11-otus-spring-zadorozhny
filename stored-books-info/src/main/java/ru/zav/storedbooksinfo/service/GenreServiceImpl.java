@@ -1,12 +1,13 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.dao.GenreRepository;
-import ru.zav.storedbooksinfo.dao.datatypes.EntityId;
 import ru.zav.storedbooksinfo.domain.Genre;
 import ru.zav.storedbooksinfo.utils.AppDaoException;
 import ru.zav.storedbooksinfo.utils.AppServiceException;
@@ -14,13 +15,13 @@ import ru.zav.storedbooksinfo.utils.AppServiceException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
 
-    @Transactional
     @Override
     public Genre add(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для добавляемого жанра.");
@@ -33,7 +34,6 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(String genreDescription) {
         if(StringUtils.isBlank(genreDescription)) throw new AppServiceException("Ошибка! Не указан Description для удаляемого жанра.");
@@ -47,30 +47,27 @@ public class GenreServiceImpl implements GenreService {
             throw new AppServiceException(e.getMessage(), e);
         }
 
-        Integer deletedCount = genreOptional.filter(genre -> {
+        return genreOptional.filter(genre -> {
             try {
                 return !isUsed(genre);
             } catch (AppServiceException e) {
-                e.printStackTrace();
+                log.error(e.getLocalizedMessage());
             }
             return false;
         })
                 .map(Genre::getId)
-                .map(EntityId::new)
                 .map(id -> {
                     try {
-                        return genreRepository.deleteById(id);
-                    } catch (AppDaoException e) {
-                        e.printStackTrace();
+                        genreRepository.deleteById(id);
+                        return 1;
+                    } catch (EmptyResultDataAccessException e) {
+                        log.error(e.getLocalizedMessage());
                     }
                     return 0;
                 })
                 .orElse(0);
-
-        return deletedCount;
     }
 
-    @Transactional
     @Override
     public Genre rename(String oldDescription, String newDescription) {
         if(StringUtils.isBlank(oldDescription) || StringUtils.isBlank(newDescription)) throw new AppServiceException("Ошибка! Не указан Description для переименования жанра.");
@@ -89,7 +86,7 @@ public class GenreServiceImpl implements GenreService {
             try {
                 return genreRepository.save(new Genre(genre.getId(), newDescriptionTrimmed));
             } catch (AppDaoException e) {
-                e.printStackTrace();
+                log.error(e.getLocalizedMessage());
             }
             return genre;
         })
@@ -100,17 +97,15 @@ public class GenreServiceImpl implements GenreService {
         return updatedGenre;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Genre> getAll() {
         try {
-            return genreRepository.readAll();
+            return genreRepository.findAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<Genre> findByDescription(String description) {
         try {

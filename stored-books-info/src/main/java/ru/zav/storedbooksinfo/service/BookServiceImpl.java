@@ -1,10 +1,11 @@
 package ru.zav.storedbooksinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
-import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.datatypes.BookBean;
 import ru.zav.storedbooksinfo.domain.Book;
 import ru.zav.storedbooksinfo.domain.Genre;
@@ -15,23 +16,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
-    private final GenreRepository genreRepository;
-
     private final GenreService genreService;
 
-    /**Эмуляция залогиненого юзера*/
-    private static final String CURRENT_USER_NAME = "Гость";
 
-
-    @Transactional
     @Override
     public Book add(BookBean bookBean) {
         try {
-            final Optional<Genre> genreOptional = genreRepository.findByDescription(bookBean.getGenreTitle());
+            final Optional<Genre> genreOptional = genreService.findByDescription(bookBean.getGenreTitle());
             final Genre genre = genreOptional.orElse(genreService.add(bookBean.getGenreTitle()));
 
             return bookRepository.save(new Book(UUID.randomUUID().toString(), bookBean.getTitle(), genre, bookBean.getAuthors(), bookBean.getComments()));
@@ -40,16 +36,16 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    @Transactional
     @Override
     public int delete(String bookId){
         try {
-            var deletedBooksCountOpt = bookRepository.getById(bookId).map(Book::getId)
+            var deletedBooksCountOpt = Optional.ofNullable(bookRepository.getById(bookId)).map(Book::getId)
                     .map(id -> {
                         try {
-                            return bookRepository.deleteById(id);
-                        } catch (AppDaoException e) {
-                            e.printStackTrace();
+                            bookRepository.deleteById(id);
+                            return 1;
+                        } catch (EmptyResultDataAccessException e) {
+                            log.error(e.getLocalizedMessage());
                         }
                         return 0;
                     });
@@ -64,7 +60,7 @@ public class BookServiceImpl implements BookService {
     public Book changeTitle(String bookId, String newTitle) {
         final Optional<Book> bookOptional;
         try {
-            bookOptional = bookRepository.getById(bookId);
+            bookOptional = Optional.ofNullable(bookRepository.getById(bookId));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -78,24 +74,22 @@ public class BookServiceImpl implements BookService {
 
         try {
             return bookOptional.map(Book::getId)
-                    .flatMap(bookRepository::getById)
+                    .map(bookRepository::getById)
                     .orElseThrow(()-> new AppServiceException(String.format("Не удалось переименовать книгу с ID %s в %s", bookId, newTitle)));
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> getAll() {
         try {
-            return bookRepository.readAll();
+            return bookRepository.findAll();
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> findByTitle(String title) {
         if(title == null) throw new AppServiceException("Ошибка! Не указано наименование книги для поиска.");

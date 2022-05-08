@@ -23,18 +23,16 @@ public class BookCommentServiceImpl implements BookCommentService {
     public static final String CURRENT_USER_NAME = "Гость";
 
     //-----  Работа с коментами  --------------------------------------------------
-    @Transactional
     @Override
     public Optional<Book> addComment(String bookId, String comment) {
-        final Optional<Book> optionalBook = bookRepository.getById(bookId);
+        final Optional<Book> optionalBook = Optional.ofNullable(bookRepository.getById(bookId));
 
         optionalBook.map(Book::getComments)
                 .map(list-> list.add(new BookComment(null, CURRENT_USER_NAME, optionalBook.orElse(null), comment)));
 
-        return optionalBook.map(bookRepository::save).map(Book::getId).flatMap(bookRepository::getById);
+        return optionalBook.map(Book::getId).map(bookRepository::getById);
     }
 
-    @Transactional
     @Override
     public Optional<Book> deleteComment(String commentId) {
 
@@ -66,9 +64,8 @@ public class BookCommentServiceImpl implements BookCommentService {
                 .map(BookComment::getBook);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<BookComment> readComments(String bookId) {
-        return bookRepository.getById(bookId).map(Book::getComments).orElse(new ArrayList<>());
+        return Optional.ofNullable(bookRepository.getById(bookId)).map(Book::getComments).orElse(new ArrayList<>());
     }
 }
