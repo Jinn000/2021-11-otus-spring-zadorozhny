@@ -7,12 +7,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.sql.SQLException;
 
 @SpringBootApplication
-public class StoredBooksInfoApplication {
+public class StoredBooksInfoWebApplication {
 
 	public static void main(String[] args) throws SQLException {
-		Console.main(args);
+		//Console.main(args);
 
-		SpringApplication.run(StoredBooksInfoApplication.class, args);
+		SpringApplication.run(StoredBooksInfoWebApplication.class);
 	}
 
 }

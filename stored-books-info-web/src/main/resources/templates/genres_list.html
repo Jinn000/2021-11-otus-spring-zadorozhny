@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .genres {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .genres tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .genres td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+
+</head>
+<body>
+<h3>Genres:</h3>
+
+<table class="genres">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="genre : ${genres}">
+        <td th:text="${genre.id}">E181db60-9C0B-4EF8-BB6D-6BB9BD380A10</td>
+        <td th:text="${genre.description}">Мистика_Dummy</td>
+        <td> <a th:href="@{/genre/edit(id=${genre.id})}" href="genre_edit.html">Edit</a></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

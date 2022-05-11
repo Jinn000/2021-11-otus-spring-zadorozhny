@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.zav.storedbooksinfo.dao.BookRepository;
 import ru.zav.storedbooksinfo.dao.GenreRepository;
 import ru.zav.storedbooksinfo.domain.Genre;
@@ -29,6 +28,17 @@ public class GenreServiceImpl implements GenreService {
         try {
             final Optional<Genre> genreOptional = genreRepository.findByDescription(genreDescription);
             return genreOptional.orElseGet(() -> genreRepository.save(new Genre(null, StringUtils.trim(genreDescription))));
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Genre save(Genre genre) {
+        if(StringUtils.isBlank(genre.getDescription())) throw new AppServiceException("Ошибка! Не указан Description для добавляемого жанра.");
+
+        try {
+            return genreRepository.save(genre);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
@@ -110,6 +120,15 @@ public class GenreServiceImpl implements GenreService {
     public Optional<Genre> findByDescription(String description) {
         try {
             return genreRepository.findByDescription(description);
+        } catch (AppDaoException e) {
+            throw new AppServiceException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Optional<Genre> findById(String id) {
+        try {
+            return genreRepository.findById(id);
         } catch (AppDaoException e) {
             throw new AppServiceException(e.getMessage(), e);
         }
